@@ -403,6 +403,7 @@
 		}
 	}
 </script>
+
 <svelte:head>
 	<title>Sign up — Sabify</title>
 	<meta name="description" content="Create your Sabify account and join thousands of students" />
@@ -415,7 +416,7 @@
 />
 
 <!-- Header Navigation -->
-<header class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
+<header class="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-sm border-b border-border/40">
 	<div class="px-6 md:px-12 h-16 flex items-center justify-between">
 		<!-- Logo -->
 		<div class="inline-flex items-center gap-3">
@@ -498,8 +499,8 @@
 			</div>
 
 			<!-- Card -->
-			<Card class="border shadow-sm">
-				<CardHeader class="space-y-2 pb-4">
+<Card class="border shadow-sm overflow-visible">
+					<CardHeader class="space-y-2 pb-4">
 					<CardTitle class="text-2xl font-bold">Create your account</CardTitle>
 					<CardDescription>
 						{#if currentStep === 1}University selection
@@ -545,9 +546,11 @@
 							</div>
 
 							<!-- University Search -->
-							<div class="space-y-1.5">
+							<div class="space-y-3">
 								<label class="text-sm font-medium mt-4 block">University <span class="text-destructive">*</span></label>
+								<!-- FIX: Removed z-index from parent to prevent stacking context -->
 								<div class="university-search relative">
+
 									<div class="relative">
 										<School class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
 										<input
@@ -568,8 +571,9 @@
 										{/if}
 									</div>
 
+									<!-- FIX: Increased z-index to 9999 to appear above all other content -->
 									{#if showDropdown}
-										<div class="absolute top-full left-0 right-0 mt-1 bg-background border rounded-lg shadow-lg max-h-56 overflow-y-auto z-50">
+										<div class="absolute top-full left-0 right-0 mt-1 bg-background border rounded-lg shadow-lg max-h-56 overflow-y-auto z-[9999]">
 											{#if searchLoading}
 												{#each [1, 2, 3] as _}
 													<div class="px-4 py-3 border-b last:border-b-0 flex items-center gap-3">
@@ -604,7 +608,7 @@
 							<!-- Selected university card -->
 							{#if selectedUniversity}
 								<div class="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border">
-									<div class="w-9 h-9 rounded-lg bg-background border flex items-center justify-center overflow-hidden flex-shrink-0">
+									<div class="w-9 h-9 rounded-lg bg-background border flex items-center justify-center shrink-0">
 										{#if !logoError}
 											<img src={getLogoPath(selectedUniversity)} alt={selectedUniversity.slug} onerror={() => (logoError = true)} class="w-full h-full object-contain p-1" />
 										{:else}
