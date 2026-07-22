@@ -106,8 +106,8 @@
 					class="code-input"
 					bind:this={codeInputs[i]}
 					bind:value={code[i]}
-					on:input={() => handleCodeInput(i)}
-					on:keydown={(e) => handleKeyDown(e, i)}
+					oninput={() => handleCodeInput(i)}
+					onkeydown={(e) => handleKeyDown(e, i)}
 					disabled={isLoading}
 					autocomplete="off"
 				/>
