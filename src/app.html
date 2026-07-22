@@ -2,19 +2,26 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="text-scale" content="scale" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    
+    <!-- Removed: non-standard text-scale meta that causes font adjustment issues -->
+    
+    <link rel="icon" href="%sveltekit.assets%/favicon.png" />
 
-<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+    <!-- DM Sans — preconnect + preload to prevent font flicker -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" />
 
-<!-- PWA -->
-<!-- <link rel="manifest" href="/manifest.webmanifest" /> -->
-<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
-<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-<link rel="apple-touch-icon" href="%sveltekit.assets%/icons/icon-192.png" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Sabify" />
+    <!-- PWA -->
+    <!-- <link rel="manifest" href="/manifest.webmanifest" /> -->
+    <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <link rel="apple-touch-icon" href="%sveltekit.assets%/icons/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Sabify" />
 
     <!-- Block render until theme is applied — eliminates white flash -->
     <script>
@@ -29,10 +36,44 @@
       })();
     </script>
 
-    <!-- Prevent background flash before CSS loads -->
+    <!-- Prevent background flash AND font flicker before CSS loads -->
     <style>
-      html { background: #0a0a0a; color-scheme: dark light; }
-      html[data-theme="light"] { background: #ffffff; }
+      /* ── Base: prevent flash, set stable font system ───────────────────── */
+      html {
+        background: #0a0a0a;
+        color-scheme: dark light;
+        /* Stable font stack: system fallback while DM Sans loads */
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        /* Prevent mobile browsers from auto-adjusting font sizes */
+        -webkit-text-size-adjust: 100%;
+        -moz-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+        /* Prevent synthesized bold/italic that causes reflow */
+        font-synthesis: none;
+        /* Smooth rendering */
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      html[data-theme="light"] {
+        background: #ffffff;
+      }
+
+      /* Apply DM Sans once loaded — prevents visible swap jump */
+      html.fonts-loaded,
+      html[data-theme="dark"].fonts-loaded,
+      html[data-theme="light"].fonts-loaded {
+        font-family: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+
+      /* Prevent layout shift from scrollbar appearance */
+      body {
+        overflow-x: hidden;
+        min-height: 100dvh;
+      }
 
       /* ── FaceVerifyModal theme tokens ─────────────────────────────────────
          Scoped under :root / data-theme so they're available to both
@@ -121,10 +162,21 @@
       }
     </style>
 
-    <!-- DM Sans -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
+    <!-- Detect when fonts load to apply DM Sans smoothly -->
+    <script>
+      (function () {
+        if ('fonts' in document) {
+          document.fonts.ready.then(function () {
+            document.documentElement.classList.add('fonts-loaded');
+          });
+        } else {
+          // Fallback: just add class after a short delay
+          setTimeout(function () {
+            document.documentElement.classList.add('fonts-loaded');
+          }, 300);
+        }
+      })();
+    </script>
 
     %sveltekit.head%
   </head>
