@@ -24,8 +24,50 @@
   import { goto } from '$app/navigation';
   import UniversityCTA from '$lib/components/UniversityCTA.svelte';
 
+  // ── Loading state ─────────────────────────────────────────────────
+  let isLoading = $state(true);
+  let loadProgress = $state(0);
+  let fontsReady = $state(false);
+
   onMount(() => {
     theme.init();
+
+    // Simulate progressive loading
+    const steps = [
+      { progress: 25, delay: 100 },   // HTML parsed
+      { progress: 50, delay: 250 },   // CSS applied
+      { progress: 75, delay: 400 },   // Fonts loading
+      { progress: 100, delay: 600 },  // Everything ready
+    ];
+
+    let stepIndex = 0;
+    const runStep = () => {
+      if (stepIndex >= steps.length) {
+        // Small buffer after 100% before hiding loader
+        setTimeout(() => {
+          isLoading = false;
+        }, 300);
+        return;
+      }
+      const step = steps[stepIndex];
+      setTimeout(() => {
+        loadProgress = step.progress;
+        stepIndex++;
+        runStep();
+      }, step.delay);
+    };
+
+    runStep();
+
+    // Also wait for fonts if supported
+    if ('fonts' in document) {
+      document.fonts.ready.then(() => {
+        fontsReady = true;
+        loadProgress = 100;
+      });
+    } else {
+      fontsReady = true;
+    }
   });
 
   // Navigation handler
@@ -36,6 +78,41 @@
 
 </script>
 
+<!-- ════════════════════════════════════════════════════════════════════════════════
+     LOADING SCREEN
+     ════════════════════════════════════════════════════════════════════════════════ -->
+{#if isLoading}
+  <div class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-500" class:opacity-0={loadProgress === 100 && !isLoading} class:pointer-events-none={!isLoading}>
+    <!-- Logo -->
+    <div class="mb-8 flex items-center gap-3">
+      <div class="w-12 h-12 rounded-xl bg-primary flex items-center justify-center font-bold text-2xl text-primary-foreground animate-pulse">
+        S
+      </div>
+      <span class="text-3xl font-bold">Sabify</span>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="w-64 h-1.5 bg-muted rounded-full overflow-hidden">
+      <div 
+        class="h-full bg-primary rounded-full transition-all duration-300 ease-out"
+        style="width: {loadProgress}%"
+      ></div>
+    </div>
+
+    <!-- Progress text -->
+    <p class="mt-4 text-sm text-muted-foreground font-mono">
+      {#if loadProgress < 30}Initializing...
+      {:else if loadProgress < 60}Loading styles...
+      {:else if loadProgress < 90}Preparing fonts...
+      {:else}Almost there...
+      {/if}
+    </p>
+
+    <!-- Percentage -->
+    <span class="mt-2 text-xs text-muted-foreground/60 font-mono">{loadProgress}%</span>
+  </div>
+{/if}
+
 <svelte:head>
   <title>Sabify — Everything Campus. One App.</title>
   <meta
@@ -45,7 +122,7 @@
 </svelte:head>
 
 <!-- Main wrapper to prevent horizontal scroll -->
-<div class="overflow-x-hidden w-full">
+<div class="overflow-x-hidden w-full" class:opacity-0={isLoading} class:transition-opacity={!isLoading} class:duration-500={!isLoading}>
 
 <!-- ════════════════════════════════════════════════════════════════════════════════
      HERO
