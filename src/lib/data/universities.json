@@ -1,0 +1,902 @@
+[
+	{
+		"id": "uni_01j3x7k2p9q4r5t6y7u8i",
+		"name": "Abia State University",
+		"acronym": "ABSU",
+		"motto": "Excellence and Service",
+		"web": "https://abiastateuniversity.edu.ng/",
+		"logo": "https://abiastateuniversity.edu.ng/wp-content/themes/Poseidon/assets/Images/logo1.png",
+		"active": true
+	},
+	{
+		"id": "uni_02k4y8l3q0r5s6u7v9j",
+		"name": "Abubakar Tafawa Balewa University",
+		"acronym": "ATBU",
+		"motto": "Doctrina matter artium (Education is the mother of the practical arts)",
+		"web": "https://www.atbu.edu.ng/web/front",
+		"logo": "https://www.atbu.edu.ng/public/assets/images/atbu_logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_03l5z9m4r1s6t7v8w0k",
+		"name": "Achievers University, Owo",
+		"acronym": "AUO",
+		"motto": "Knowledge, Integrity and Leadership",
+		"web": "https://www.achievers.edu.ng/",
+		"logo": "https://www.achievers.edu.ng/wp-content/uploads/2019/06/new_logo-2.png",
+		"active": false
+	},
+	{
+		"id": "uni_04m6a0n5s2t7u8w9x1l",
+		"name": "Adamawa State University",
+		"acronym": "ADSU",
+		"motto": "Non Found",
+		"web": "https://adsu.edu.ng/",
+		"logo": "https://adsu.edu.ng/wp-content/uploads/2020/11/ADSU-LOGO.png",
+		"active": false
+	},
+	{
+		"id": "uni_05n7b1o6t3u8v9x0y2m",
+		"name": "Adekunle Ajasin University",
+		"acronym": "AAUA",
+		"motto": "For Learning and Service",
+		"web": "https://aaua.edu.ng/b/",
+		"logo": "https://aaua.edu.ng/b/",
+		"active": false
+	},
+	{
+		"id": "uni_06o8c2p7u4v9w0y1z3n",
+		"name": "Adeleke University",
+		"acronym": "Adeleke University",
+		"motto": "Non Found",
+		"web": "https://adelekeuniversity.edu.ng/",
+		"logo": "https://adelekeuniversity.edu.ng/wp-content/uploads/2016/10/logos.png",
+		"active": false
+	},
+	{
+		"id": "uni_07p9d3q8v5w0x1z2a4o",
+		"name": "Afe Babalola University",
+		"acronym": "ABUAD",
+		"motto": "Labor Servitum Et Integritas(Labor for Service and Integrity)",
+		"web": "http://www.abuad.edu.ng/",
+		"logo": "http://www.abuad.edu.ng/wp-content/uploads/2017/03/logo-5.png",
+		"active": false
+	},
+	{
+		"id": "uni_08q0e4r9w6x1y2a3b5p",
+		"name": "Admiralty University of Nigeria",
+		"acronym": "ADUN",
+		"motto": "Exellence in Education",
+		"web": "https://adun.edu.ng/",
+		"logo": "https://adun.edu.ng/wp-content/uploads/2020/09/adun.jpg",
+		"active": false
+	},
+	{
+		"id": "uni_09r1f5s0x7y2z3b4c6q",
+		"name": "African University of Science and Technology",
+		"acronym": "AUST",
+		"motto": "Non Found",
+		"web": "https://aust.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/13967.png",
+		"active": false
+	},
+	{
+		"id": "uni_10s2g6t1y8z3a4c5d7r",
+		"name": "Ahmadu Bello University",
+		"acronym": "ABU",
+		"motto": "Non Found",
+		"web": "https://abu.edu.ng/",
+		"logo": "https://abu.edu.ng/images/logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_11t3h7u2z9a4b5d6e8s",
+		"name": "Ajayi Crowther University",
+		"acronym": "ACU",
+		"motto": "Scientia Probitas(Knowledge with Probity)",
+		"web": "https://acu.edu.ng/",
+		"logo": "https://acu.edu.ng/wp-content/uploads/2020/08/acu-logo3-2-1.png",
+		"active": false
+	},
+	{
+		"id": "uni_12u4i8v3a0b5c6e7f9t",
+		"name": "Akwa Ibom State University",
+		"acronym": "AKSU",
+		"motto": "Knowledge and Technology for Development",
+		"web": "https://www.aksu.edu.ng/",
+		"logo": "https://www.aksu.edu.ng//images/logosch.png",
+		"active": false
+	},
+	{
+		"id": "uni_13v5j9w4b1c6d7f8g0u",
+		"name": "Alex Ekwueme Federal University, Ndufu-Alike",
+		"acronym": "FUNAI",
+		"motto": "Excellence and Integrity",
+		"web": "https://funai.edu.ng/",
+		"logo": "https://funai.edu.ng/wp-content/uploads/2020/03/cropped-funai_Logo-1.png",
+		"active": false
+	},
+	{
+		"id": "uni_14w6k0x5c2d7e8f9g1v",
+		"name": "Al-Hikmah University",
+		"acronym": "HUI",
+		"motto": "Learning for wisdom and morality",
+		"web": "https://alhikmahuniversity.edu.ng/",
+		"logo": "https://alhikmahuniversity.edu.ng/wp-content/uploads/2020/09/au-logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_15x7l1y6d3e8f9g0h2w",
+		"name": "Al-Qalam University, Katsina",
+		"acronym": "AUK",
+		"motto": "Non Found",
+		"web": "http://www.auk.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10748.png",
+		"active": false
+	},
+	{
+		"id": "uni_16y8m2z7e4f9g0h1i3x",
+		"name": "Ambrose Alli University",
+		"acronym": "AAU",
+		"motto": "Knowledge for Advancement",
+		"web": "https://www.aauekpoma.edu.ng/",
+		"logo": "https://www.aauekpoma.edu.ng/images/aau/logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_17z9n3a8f5g0h1i2j4y",
+		"name": "American University of Nigeria",
+		"acronym": "AUN",
+		"motto": "Quality, Integrity, Style",
+		"web": "http://www.aun.edu.ng/",
+		"logo": "http://www.aun.edu.ng/images/aun-logo-top.png",
+		"active": false
+	},
+	{
+		"id": "uni_18a0o4b9g6h1i2j3k5z",
+		"name": "Anchor University, Lagos",
+		"acronym": "AUL",
+		"motto": "Character, Competence, Courage",
+		"web": "https://aul.edu.ng/",
+		"logo": "https://aul.edu.ng/wp-content/uploads/2020/03/skin12r.header-style-transparent-mobile-logo-hd-full-logo-01.png",
+		"active": false
+	},
+	{
+		"id": "uni_19b1p5c0h7i2j3k4l6a",
+		"name": "Arthur Jarvis University",
+		"acronym": "AJU",
+		"motto": "Non Found",
+		"web": "http://arthurjarvisuniversity.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17752.png",
+		"active": false
+	},
+	{
+		"id": "uni_20c2q6d1i8j3k4l5m7b",
+		"name": "Atiba University",
+		"acronym": "Atiba University",
+		"motto": "Non Found",
+		"web": "https://www.atibauniversity.edu.ng/",
+		"logo": "https://www.atibauniversity.edu.ng/images/big_logo_sm.png",
+		"active": false
+	},
+	{
+		"id": "uni_21d3r7e2j9k4l5m6n8c",
+		"name": "Babcock University",
+		"acronym": "BU",
+		"motto": "Knowledge, Truth, Service",
+		"web": "https://www.babcock.edu.ng/",
+		"logo": "https://www.babcock.edu.ng/assets/images/bu_logo_main_2.jpg",
+		"active": false
+	},
+	{
+		"id": "uni_22e4s8f3k0l5m6n7o9d",
+		"name": "Bauchi State University",
+		"acronym": "BauSU",
+		"motto": "limi Tushen Cigaba(knowledge is the foundation of progress)",
+		"web": "https://basug.edu.ng/",
+		"logo": "https://basug.edu.ng/wp-content/uploads/2018/11/basug_logo.jpg",
+		"active": false
+	},
+	{
+		"id": "uni_23f5t9g4l1m6n7o8p0e",
+		"name": "Bayero University Kano",
+		"acronym": "BUK",
+		"motto": "...and above every possessor of knowledge there is One more learned",
+		"web": "http://www.buk.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/3450.png",
+		"active": false
+	},
+	{
+		"id": "uni_24g6u0h5m2n7o8p9q1f",
+		"name": "Baze University",
+		"acronym": "Baze University",
+		"motto": "Learn to live",
+		"web": "https://www.bazeuniversity.edu.ng/",
+		"logo": "https://www.bazeuniversity.edu.ng/images/logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_25h7v1i6n3o8p9q0r2g",
+		"name": "Bells University of Technology",
+		"acronym": "BellsTech",
+		"motto": "Only the best is good for Bells",
+		"web": "https://www.bellsuniversity.edu.ng/",
+		"logo": "https://www.bellsuniversity.edu.ng/wp-content/uploads/2019/04/Bells-Logo.2png.png",
+		"active": false
+	},
+	{
+		"id": "uni_26i8w2j7o4p9q0r1s3h",
+		"name": "Benson Idahosa University",
+		"acronym": "BIU",
+		"motto": "Academic Excellence with Godliness",
+		"web": "https://www.biu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/3451.png",
+		"active": false
+	},
+	{
+		"id": "uni_27j9x3k8p5q0r1s2t4i",
+		"name": "Benue State University",
+		"acronym": "BSU",
+		"motto": "Scientia Liberatio Populurum(Science makes People free)",
+		"web": "https://www.bsum.edu.ng/",
+		"logo": "https://bsum.edu.ng/img/logo/logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_28k0y4l9q6r1s2t3u5j",
+		"name": "Bingham University",
+		"acronym": "BHU",
+		"motto": "Mission for Service",
+		"web": "https://binghamuni.edu.ng/v2/",
+		"logo": "https://binghamuni.edu.ng/v2/images/logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_29l1z5m0r7s2t3u4v6k",
+		"name": "Borno State University",
+		"acronym": "BOSU",
+		"motto": "Non Found",
+		"web": "https://bosu.edu.ng/",
+		"logo": "https://bosu.edu.ng/wp-content/uploads/2020/09/HEADER.png",
+		"active": false
+	},
+	{
+		"id": "uni_30m2a6n1s8t3u4v5w7l",
+		"name": "Bowen University",
+		"acronym": "BUI",
+		"motto": "Non Found",
+		"web": "https://bowen.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10777.png",
+		"active": false
+	},
+	{
+		"id": "uni_31n3b7o2t9u4v5w6x8m",
+		"name": "Caleb University",
+		"acronym": "Caleb University",
+		"motto": "For God and Humanity",
+		"web": "https://calebuniversity.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10778.png",
+		"active": false
+	},
+	{
+		"id": "uni_32o4c8p3u0v5w6x7y9n",
+		"name": "Caritas University",
+		"acronym": "CAU",
+		"motto": "Love for Education and Morals",
+		"web": "http://www.caritasuni.edu.ng/",
+		"logo": "http://www.caritasuni.edu.ng/assets/images/logo-header-1-116x128.png",
+		"active": false
+	},
+	{
+		"id": "uni_33p5d9q4v1w6x7y8z0o",
+		"name": "Chrisland University",
+		"acronym": "Chrisland University",
+		"motto": "Non Found",
+		"web": "https://www.chrislanduniversity.edu.ng/",
+		"logo": "https://www.chrislanduniversity.edu.ng/static/img/logo/cu-logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_34q6e0r5w2x7y8z9a1p",
+		"name": "Christopher University",
+		"acronym": "Christopher University",
+		"motto": "Non Found",
+		"web": "http://www.christopheruniversity.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/18424.png",
+		"active": false
+	},
+	{
+		"id": "uni_35r7f1s6x3y8z9a0b2q",
+		"name": "Chukwuemeka Odumegwu Ojukwu University",
+		"acronym": "COOU",
+		"motto": "Education for Development",
+		"web": "https://coou.edu.ng/",
+		"logo": "https://coou.edu.ng/wp-content/uploads/2020/05/coou_logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_36s8g2t7y4z9a0b1c3r",
+		"name": "Clifford University",
+		"acronym": "CLU",
+		"motto": "Excellence, Faith and Service",
+		"web": "https://clifforduni.edu.ng/",
+		"logo": "https://clifforduni.edu.ng/img/logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_37t9h3u8z5a0b1c2d4s",
+		"name": "Coal City University",
+		"acronym": "CCU",
+		"motto": "Non Found",
+		"web": "https://ccu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17746.png",
+		"active": false
+	},
+	{
+		"id": "uni_38u0i4v9a6b1c2d3e5t",
+		"name": "Covenant University",
+		"acronym": "CU",
+		"motto": "Raising a New Generation of Leaders",
+		"web": "https://covenantuniversity.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/3452.png",
+		"active": false
+	},
+	{
+		"id": "uni_39v1j5w0b7c2d3e4f6u",
+		"name": "Crawford University",
+		"acronym": "CRU",
+		"motto": "Knowledge with Godliness",
+		"web": "https://crawforduniversity.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10760.png",
+		"active": false
+	},
+	{
+		"id": "uni_40w2k6x1c8d3e4f5g7v",
+		"name": "Crescent University, Abeokuta",
+		"acronym": "CUAB",
+		"motto": "Knowledge and Faith",
+		"web": "https://crescent.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10761.png",
+		"active": false
+	},
+	{
+		"id": "uni_41x3l7y2d9e4f5g6h8w",
+		"name": "Cross River University of Technology",
+		"acronym": "CRUTECH",
+		"motto": "Technology for human advancement",
+		"web": "https://crutech.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10774.png",
+		"active": false
+	},
+	{
+		"id": "uni_42y4m8z3e0f5g6h7i9x",
+		"name": "Crown Hill University",
+		"acronym": "Crown Hill University",
+		"motto": "Knowledge is Power",
+		"web": "https://crownhilluniversity.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17747.png",
+		"active": false
+	},
+	{
+		"id": "uni_43z5n9a4f1g6h7i8j0y",
+		"name": "Delta State University, Abraka",
+		"acronym": "DELSU",
+		"motto": "Knowledge, Character and Service",
+		"web": "https://www.delsu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10734.png",
+		"active": false
+	},
+	{
+		"id": "uni_44a6o0b5g2h7i8j9k1z",
+		"name": "Dominican University, Ibadan",
+		"acronym": "DU",
+		"motto": "Non Found",
+		"web": "https://dui.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17748.png",
+		"active": false
+	},
+	{
+		"id": "uni_45b7p1c6h3i8j9k0l2a",
+		"name": "Eastern Palm University",
+		"acronym": "EPU",
+		"motto": "Non Found",
+		"web": "https://www.epu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17743.png",
+		"active": false
+	},
+	{
+		"id": "uni_46c8q2d7i4j9k0l1m3b",
+		"name": "Edo University",
+		"acronym": "EUI",
+		"motto": "Non Found",
+		"web": "https://www.edouniversity.edu.ng/",
+		"logo": "https://www.edouniversity.edu.ng/uploads/settings/logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_47d9r3e8j5k0l1m2n4c",
+		"name": "Ebonyi State University",
+		"acronym": "EBSU",
+		"motto": "Non Found",
+		"web": "http://ebsu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10736.png",
+		"active": false
+	},
+	{
+		"id": "uni_48e0s4f9k6l1m2n3o5d",
+		"name": "Edwin Clark University",
+		"acronym": "ECU",
+		"motto": "Knowledge and Development",
+		"web": "https://www.edwinclarkuniversity.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17722.png",
+		"active": false
+	},
+	{
+		"id": "uni_49f1t5g0l7m2n3o4p6e",
+		"name": "Ekiti State University, Ado Ekiti",
+		"acronym": "EKSU",
+		"motto": "Knowledge, Honour, Service",
+		"web": "http://www.eksu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/8088.png",
+		"active": false
+	},
+	{
+		"id": "uni_50g2u6h1m8n3o4p5q7f",
+		"name": "Eko University of Medical and Health Sciences",
+		"acronym": "EKOUNIVMED",
+		"motto": "Non Found",
+		"web": "https://ekounimed.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17751.png",
+		"active": false
+	},
+	{
+		"id": "uni_51h3v7i2n9o4p5q6r8g",
+		"name": "Elizade University",
+		"acronym": "ElizadeU",
+		"motto": "Pragmatic Innovation for Development",
+		"web": "https://www.elizadeuniversity.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/15122.png",
+		"active": false
+	},
+	{
+		"id": "uni_52i4w8j3o0p5q6r7s9h",
+		"name": "Enugu State University of Science and Technology",
+		"acronym": "ESUT",
+		"motto": "Non Found",
+		"web": "https://www.esut.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10740.png",
+		"active": true
+	},
+	{
+		"id": "uni_53j5x9k4p1q6r7s8t0i",
+		"name": "Evangel University, Akaeze",
+		"acronym": "EUA",
+		"motto": "Non Found",
+		"web": "https://evangeluniversity.edu.ng/",
+		"logo": "https://evangeluniversity.edu.ng/images/eua-logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_54k6y0l5q2r7s8t9u1j",
+		"name": "Federal University of Agriculture, Abeokuta",
+		"acronym": "FUNAAB",
+		"motto": "Knowledge for Development",
+		"web": "https://unaab.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/3458.png",
+		"active": false
+	},
+	{
+		"id": "uni_55l7z1m6r3s8t9u0v2k",
+		"name": "Federal University of Petroleum Resources",
+		"acronym": "FUPRE",
+		"motto": "Excellence and Relevance",
+		"web": "https://fupre.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/13950.png",
+		"active": false
+	},
+	{
+		"id": "uni_56m8a2n7s4t9u0v1w3l",
+		"name": "Federal University of Technology, Akure",
+		"acronym": "FUTA",
+		"motto": "Technology for Self Reliance",
+		"web": "http://www.futa.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/3453.png",
+		"active": false
+	},
+	{
+		"id": "uni_57n9b3o8t5u0v1w2x4m",
+		"name": "Federal University of Technology, Minna",
+		"acronym": "FUT Minna",
+		"motto": "Technology for Empowerment",
+		"web": "https://www.futminna.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10756.png",
+		"active": false
+	},
+	{
+		"id": "uni_58o0c4p9u6v1w2x3y5n",
+		"name": "Federal University of Technology, Owerri",
+		"acronym": "FUTO",
+		"motto": "Technology for Service",
+		"web": "https://futo.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/7665.png",
+		"active": false
+	},
+	{
+		"id": "uni_59p1d5q0v7w2x3y4z6o",
+		"name": "Federal University, Birnin Kebbi",
+		"acronym": "FUBK",
+		"motto": "Non Found",
+		"web": "http://www.fubk.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17735.png",
+		"active": false
+	},
+	{
+		"id": "uni_60q2e6r1w8x3y4z5a7p",
+		"name": "Federal University, Dutse",
+		"acronym": "FUD",
+		"motto": "Non Found",
+		"web": "https://fud.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/13952.png",
+		"active": false
+	},
+	{
+		"id": "uni_61r3f7s2x9y4z5a6b8q",
+		"name": "Federal University, Dustin-Ma",
+		"acronym": "FUDMA",
+		"motto": "Non Found",
+		"web": "https://www.fudutsinma.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/13953.png",
+		"active": false
+	},
+	{
+		"id": "uni_62s4g8t3y0z5a6b7c9r",
+		"name": "Federal University, Gashua",
+		"acronym": "FUG",
+		"motto": "Non Found",
+		"web": "http://fugashua.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17734.png",
+		"active": false
+	},
+	{
+		"id": "uni_63t5h9u4z1a6b7c8d0s",
+		"name": "Federal University, Gusau",
+		"acronym": "FUGUS",
+		"motto": "Knowledge, Innovation and Service",
+		"web": "https://www.fugusau.edu.ng/",
+		"logo": "https://www.fugusau.edu.ng/wp-content/uploads/2020/05/fugus.png",
+		"active": false
+	},
+	{
+		"id": "uni_64u6i0v5a2b7c8d9e1t",
+		"name": "Federal University, Kashere",
+		"acronym": "FUK",
+		"motto": "Education for global citizenship",
+		"web": "http://fukashere.edu.ng/",
+		"logo": "http://fukashere.edu.ng/wp-content/uploads/2020/03/cropped-images23df.jpg",
+		"active": false
+	},
+	{
+		"id": "uni_65v7j1w6b3c8d9e0f2u",
+		"name": "Federal University, Lafia",
+		"acronym": "Federal University, Lafia",
+		"motto": "Non Found",
+		"web": "http://fukashere.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/13955.png",
+		"active": false
+	},
+	{
+		"id": "uni_66w8k2x7c4d9e0f1g3v",
+		"name": "Federal University, Lokoja",
+		"acronym": "Federal University, Lokoja",
+		"motto": "The sky is the limit",
+		"web": "https://www.fulokoja.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/13956.png",
+		"active": false
+	},
+	{
+		"id": "uni_67x9l3y8d5e0f1g2h4w",
+		"name": "Federal University, Otuoke",
+		"acronym": "FUOTUOKE",
+		"motto": "Knowledge, Excellence, Service",
+		"web": "http://www.fuotuoke.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/13951.png",
+		"active": false
+	},
+	{
+		"id": "uni_68y0m4z9e6f1g2h3i5x",
+		"name": "Federal University, Oye-Ekiti",
+		"acronym": "FUOYE",
+		"motto": "Innovation and Character for National Transformation Dignity",
+		"web": "https://fuoye.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/13958.png",
+		"active": false
+	},
+	{
+		"id": "uni_69z1n5a0f7g2h3i4j6y",
+		"name": "Federal University, Wukari",
+		"acronym": "FUWUKARI",
+		"motto": "Character, Excellence and Service",
+		"web": "http://fuwukari.edu.ng/",
+		"logo": "http://fuwukari.edu.ng/storage/logo/logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_70a2o6b1g8h3i4j5k7z",
+		"name": "Fountain University, Osogbo",
+		"acronym": "FUO",
+		"motto": "Faith, Knowledge and Service",
+		"web": "https://fuo.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10779.png",
+		"active": false
+	},
+	{
+		"id": "uni_71b3p7c2h9i4j5k6l8a",
+		"name": "Glorious Vision University",
+		"acronym": "GVU",
+		"motto": "To nurture for discipline and excellence",
+		"web": "https://www.sau.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/13975.png",
+		"active": false
+	},
+	{
+		"id": "uni_72c4q8d3i0j5k6l7m9b",
+		"name": "Godfrey Okoye University",
+		"acronym": "GO Uni",
+		"motto": "Unity of Knowledge",
+		"web": "http://www.gouni.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/13969.png",
+		"active": false
+	},
+	{
+		"id": "uni_73d5r9e4j1k6l7m8n0c",
+		"name": "Gombe State University",
+		"acronym": "GSU",
+		"motto": "Primus inter pares (First among equals)",
+		"web": "http://gsu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10742.png",
+		"active": false
+	},
+	{
+		"id": "uni_74e6s0f5k2l7m8n9o1d",
+		"name": "Gregory University, Uturu",
+		"acronym": "GUU",
+		"motto": "Knowledge for Tomorrow",
+		"web": "https://gregoryuniversityuturu.edu.ng/",
+		"logo": "https://gregoryuniversityuturu.edu.ng/website/wp-content/uploads/2017/06/cropped-logo-1.png",
+		"active": false
+	},
+	{
+		"id": "uni_75f7t1g6l3m8n9o0p2e",
+		"name": "Hallmark University, Ijebu-Itele",
+		"acronym": "HU",
+		"motto": "Non Found",
+		"web": "https://hallmarkuniversity.edu.ng/",
+		"logo": "https://hallmarkuniversity.edu.ng/images/logo3-1.png",
+		"active": false
+	},
+	{
+		"id": "uni_76g8u2h7m4n9o0p1q3f",
+		"name": "Hezekiah University",
+		"acronym": "UNIHEZ",
+		"motto": "Academic Excellence with Good Morals",
+		"web": "https://www.hezekiah.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17726.png",
+		"active": false
+	},
+	{
+		"id": "uni_77h9v3i8n5o0p1q2r4g",
+		"name": "Ibrahim Badamasi Babangida University",
+		"acronym": "IBB University",
+		"motto": "Academic Excellence with Good Morals",
+		"web": "https://ibbu.edu.ng/",
+		"logo": "https://ibbu.edu.ng/wp-content/uploads/2019/10/logo.png",
+		"active": false
+	},
+	{
+		"id": "uni_78i0w4j9o6p1q2r3s5h",
+		"name": "Igbinedion University Okada",
+		"acronym": "IUO",
+		"motto": "Knowledge and Excellence",
+		"web": "https://www.iuokada.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10738.png",
+		"active": false
+	},
+	{
+		"id": "uni_79j1x5k0p7q2r3s4t6i",
+		"name": "Ignatius Ajuru University of Education",
+		"acronym": "IAUE",
+		"motto": "Non Found",
+		"web": "https://iauoe.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17737.png",
+		"active": false
+	},
+	{
+		"id": "uni_80k2y6l1q8r3s4t5u7j",
+		"name": "Imo State University",
+		"acronym": "IMSU",
+		"motto": "Excellence in service",
+		"web": "http://www.imsu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10744.png",
+		"active": false
+	},
+	{
+		"id": "uni_81l3z7m2r9s4t5u6v8k",
+		"name": "Joseph Ayo Babalola University",
+		"acronym": "JABU",
+		"motto": "For knowledge and Godly Service",
+		"web": "https://jabu.edu.ng/",
+		"logo": "https://jabu.edu.ng/wp-content/uploads/2019/07/JABU-Logo-n-Header.png",
+		"active": false
+	},
+	{
+		"id": "uni_82m4a8n3s0t5u6v7w9l",
+		"name": "Kaduna State University",
+		"acronym": "KASU",
+		"motto": "Knowledge for Development and Unity",
+		"web": "https://www.kasu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10746.png",
+		"active": false
+	},
+	{
+		"id": "uni_83n5b9o4t1u6v7w8x0m",
+		"name": "Kano University of Science and Technology",
+		"acronym": "KUST",
+		"motto": "Non Found",
+		"web": "http://kustwudil.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10747.png",
+		"active": false
+	},
+	{
+		"id": "uni_84o6c0p5u2v7w8x9y1n",
+		"name": "Kebbi State University of Science and Technology",
+		"acronym": "KSUSTA",
+		"motto": "Knowledge for Self Reliance",
+		"web": "https://ksusta.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/12079.png",
+		"active": false
+	},
+	{
+		"id": "uni_85p7d1q6v3w8x9y0z2o",
+		"name": "Kings University",
+		"acronym": "KU",
+		"motto": "Raising Leaders, transforming minds",
+		"web": "https://www.kingsuniversity.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17727.png",
+		"active": false
+	},
+	{
+		"id": "uni_86q8e2r7w4x9y0z1a3p",
+		"name": "Kogi State University",
+		"acronym": "KSU",
+		"motto": "Knowledge for Self Reliance",
+		"web": "https://www.ksu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10750.png",
+		"active": false
+	},
+	{
+		"id": "uni_87r9f3s8x5y0z1a2b4q",
+		"name": "Kola Daisi University",
+		"acronym": "KDU",
+		"motto": "Knowledge for the Service of Honesty",
+		"web": "https://koladaisiuniversity.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17750.png",
+		"active": false
+	},
+	{
+		"id": "uni_88s0g4t9y6z1a2b3c5r",
+		"name": "Kwara State University",
+		"acronym": "KWASU",
+		"motto": "Service and Integrity",
+		"web": "https://www.kwasu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/12080.png",
+		"active": false
+	},
+	{
+		"id": "uni_89t1h5u0z7a2b3c4d6s",
+		"name": "Kwararafa University, Wukari",
+		"acronym": "KWU",
+		"motto": "Education for Total Development",
+		"web": "https://www.kuw.edu.ng/",
+		"logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPoUC3pLu-LKpXOyd5oWh3qwBIV0ZJh1jH4Q&usqp=CAU",
+		"active": false
+	},
+	{
+		"id": "uni_90u2i6v1a8b3c4d5e7t",
+		"name": "Ladoke Akintola University of Technology",
+		"acronym": "LAUTECH",
+		"motto": "Excellence, Integrity and Service",
+		"web": "http://www.lautech.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10767.png",
+		"active": false
+	},
+	{
+		"id": "uni_91v3j7w2b9c4d5e6f8u",
+		"name": "Lagos State University",
+		"acronym": "LASU",
+		"motto": "Per la verità e di servizio (For Truth and Service)",
+		"web": "https://lasu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/8084.png",
+		"active": false
+	},
+	{
+		"id": "uni_92w4k8x3c0d5e6f7g9v",
+		"name": "Landmark University",
+		"acronym": "LMU",
+		"motto": "Breaking New Grounds",
+		"web": "https://lmu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/13970.png",
+		"active": false
+	},
+	{
+		"id": "uni_93x5l9y4d1e6f7g8h0w",
+		"name": "Lead City University",
+		"acronym": "LCU",
+		"motto": "Knowledge for Self-reliance",
+		"web": "https://www.lcu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10780.png",
+		"active": false
+	},
+	{
+		"id": "uni_94y6m0z5e2f7g8h9i1x",
+		"name": "Madonna University, Okija",
+		"acronym": "MU",
+		"motto": "Decency in Education and Morals",
+		"web": "https://www.madonnauniversity.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10781.png",
+		"active": false
+	},
+	{
+		"id": "uni_95z7n1a6f3g8h9i0j2y",
+		"name": "Mcpherson University",
+		"acronym": "MCU",
+		"motto": "Knowledge, Integrity and Service",
+		"web": "http://www.mcu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17728.png",
+		"active": false
+	},
+	{
+		"id": "uni_96a8o2b7g4h9i0j1k3z",
+		"name": "Michael and Cecilia Ibru University",
+		"acronym": "MCIU",
+		"motto": "Knowledge for the alleviation of poverty",
+		"web": "https://www.mciu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17729.png",
+		"active": false
+	},
+	{
+		"id": "uni_97b9p3c8h5i0j1k2l4a",
+		"name": "Michael Okpara University of Agriculture",
+		"acronym": "MOUAU",
+		"motto": "Knowledge, Food and Security",
+		"web": "https://mouauportal.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/8085.png",
+		"active": true
+	},
+	{
+		"id": "uni_98c0q4d9i6j1k2l3m5b",
+		"name": "Modibbo Adama University of Technology",
+		"acronym": "MAUTECH",
+		"motto": "Technology for Development",
+		"web": "https://mautech.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/10729.png",
+		"active": false
+	},
+	{
+		"id": "uni_99d1r5e0j7k2l3m4n6c",
+		"name": "Moshood Abiola University of Science and Technology, Abeokuta",
+		"acronym": "MAUSTECH",
+		"motto": "Technology for Development",
+		"web": "https://mapoly.edu.ng/web/",
+		"logo": "https://mapoly.edu.ng/web/wp-content/uploads/2015/01/logo2.png",
+		"active": false
+	},
+	{
+		"id": "uni_00e2s6f1k8l3m4n5o7d",
+		"name": "Mountain Top University",
+		"acronym": "MTU",
+		"motto": "Empowered to Excel",
+		"web": "http://www.mtu.edu.ng/",
+		"logo": "https://www.4icu.org/i/logos-seals/17730.png",
+		"active": false
+	}
+]

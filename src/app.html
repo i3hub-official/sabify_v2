@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="text-scale" content="scale" />
+
+<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+
+<!-- PWA -->
+<!-- <link rel="manifest" href="/manifest.webmanifest" /> -->
+<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+<link rel="apple-touch-icon" href="%sveltekit.assets%/icons/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Sabify" />
+
+    <!-- Block render until theme is applied — eliminates white flash -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var theme = stored === 'light' ? 'light' : stored === 'dark' ? 'dark' : prefersDark ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', theme);
+          if (theme === 'dark') document.documentElement.classList.add('dark');
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Prevent background flash before CSS loads -->
+    <style>
+      html { background: #0a0a0a; color-scheme: dark light; }
+      html[data-theme="light"] { background: #ffffff; }
+
+      /* ── FaceVerifyModal theme tokens ─────────────────────────────────────
+         Scoped under :root / data-theme so they're available to both
+         the CSS and the canvas overlay (read via getComputedStyle).
+      ──────────────────────────────────────────────────────────────────────── */
+      :root,
+      [data-theme="light"] {
+        --fv-modal-bg:      #ffffff;
+        --fv-modal-border:  rgba(0,0,0,0.08);
+        --fv-header-border: rgba(0,0,0,0.07);
+        --fv-bottom-border: rgba(0,0,0,0.07);
+        --fv-title:         #0f172a;
+        --fv-subline:       #64748b;
+        --fv-subline-ok:    #059669;
+        --fv-subline-err:   #dc2626;
+        --fv-close-bg:      rgba(0,0,0,0.05);
+        --fv-close-border:  rgba(0,0,0,0.08);
+        --fv-close-color:   #64748b;
+        --fv-close-hover:   rgba(0,0,0,0.10);
+        --fv-spinner-track: #e2e8f0;
+        --fv-spinner-head:  rgba(15,23,42,0.35);
+        --fv-center-bg:     rgba(255,255,255,0.88);
+        --fv-center-text:   #64748b;
+        --fv-cta-bg:        linear-gradient(135deg,#15803d,#166534);
+        --fv-badge-bg:      rgba(0,0,0,0.04);
+        --fv-badge-border:  rgba(0,0,0,0.08);
+        --fv-badge-color:   #64748b;
+        --fv-badge-ok-bg:   rgba(0,201,167,0.08);
+        --fv-badge-ok-bd:   rgba(0,201,167,0.20);
+        --fv-badge-ok-tx:   #059669;
+        --fv-badge-err-bg:  rgba(239,68,68,0.08);
+        --fv-badge-err-bd:  rgba(239,68,68,0.20);
+        --fv-badge-err-tx:  #dc2626;
+        /* canvas */
+        --fv-overlay-bg:    rgba(248,250,252,0.72);
+        --fv-ring-ok:       #00c9a7;
+        --fv-ring-err:      #ef4444;
+        --fv-ring-idle:     rgba(0,0,0,0.20);
+        --fv-corner-ok:     rgba(0,201,167,0.50);
+        --fv-label-ok:      #059669;
+        --fv-label-err:     #dc2626;
+        --fv-arc-color:     rgba(0,201,167,0.60);
+        --fv-multi-label:   #ef4444;
+        --fv-pct-color:     #00c9a7;
+      }
+
+      [data-theme="dark"],
+      .dark {
+        --fv-modal-bg:      #0f1115;
+        --fv-modal-border:  rgba(255,255,255,0.08);
+        --fv-header-border: rgba(255,255,255,0.06);
+        --fv-bottom-border: rgba(255,255,255,0.06);
+        --fv-title:         #ffffff;
+        --fv-subline:       rgba(255,255,255,0.40);
+        --fv-subline-ok:    #00c9a7;
+        --fv-subline-err:   #ef4444;
+        --fv-close-bg:      rgba(255,255,255,0.06);
+        --fv-close-border:  rgba(255,255,255,0.08);
+        --fv-close-color:   rgba(255,255,255,0.50);
+        --fv-close-hover:   rgba(255,255,255,0.10);
+        --fv-spinner-track: rgba(255,255,255,0.08);
+        --fv-spinner-head:  rgba(255,255,255,0.40);
+        --fv-center-bg:     rgba(10,13,15,0.85);
+        --fv-center-text:   rgba(255,255,255,0.50);
+        --fv-cta-bg:        linear-gradient(135deg,#15803d,#166534);
+        --fv-badge-bg:      rgba(255,255,255,0.06);
+        --fv-badge-border:  rgba(255,255,255,0.10);
+        --fv-badge-color:   rgba(255,255,255,0.50);
+        --fv-badge-ok-bg:   rgba(0,201,167,0.15);
+        --fv-badge-ok-bd:   rgba(0,201,167,0.30);
+        --fv-badge-ok-tx:   #00c9a7;
+        --fv-badge-err-bg:  rgba(239,68,68,0.15);
+        --fv-badge-err-bd:  rgba(239,68,68,0.30);
+        --fv-badge-err-tx:  #fca5a5;
+        /* canvas */
+        --fv-overlay-bg:    rgba(10,13,15,0.72);
+        --fv-ring-ok:       #00c9a7;
+        --fv-ring-err:      #ef4444;
+        --fv-ring-idle:     rgba(255,255,255,0.18);
+        --fv-corner-ok:     rgba(0,201,167,0.60);
+        --fv-label-ok:      #00c9a7;
+        --fv-label-err:     #ef4444;
+        --fv-arc-color:     rgba(0,201,167,0.60);
+        --fv-multi-label:   #ef4444;
+        --fv-pct-color:     #00c9a7;
+      }
+    </style>
+
+    <!-- DM Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
+
+    %sveltekit.head%
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents">%sveltekit.body%</div>
+  </body>
+</html>

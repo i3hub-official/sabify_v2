@@ -1,0 +1,1083 @@
+// sabify — prisma schema (COMPLETE)
+// prisma 7.8.0 · postgresql
+//
+// Commands:
+//   pnpm prisma migrate dev --name <migration_name>
+//   pnpm prisma generate
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────────────
+// 1. USER AUTH & PROFILES
+// ─────────────────────────────────────────────────────
+
+model User {
+  id            String   @id // set via nanoid() in app code
+  surname       String // encrypted (random-IV)
+  firstName     String // encrypted (random-IV)
+  otherName     String? // encrypted (random-IV)
+  email         String // encrypted (random-IV)
+  emailHash     String   @unique // HMAC hash — used for signin lookup
+  emailVerified Boolean  @default(false)
+  passwordHash  String
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  phone     String? // encrypted (deterministic)
+  phoneHash String? @unique // HMAC hash — used for lookup
+
+  // ── Academic identity ──────────────────────────────
+  matricNumber String? @unique
+  jambRegNo    String? @unique
+  level        Int? // 100 | 200 | 300 | 400 | 500 | 600
+  session      String? // e.g. "2025/2026" — format "YYYY/YYYY"
+
+  // ── Institution ────────────────────────────────────
+  universityId String?
+  university   University? @relation(fields: [universityId], references: [id], onDelete: SetNull)
+
+  // Students only — if user is admin, departmentId should be NULL
+  departmentId Int?
+  department   Department? @relation("StudentDepartment", fields: [departmentId], references: [id], onDelete: SetNull)
+
+  // ── Account status ─────────────────────────────────
+  isSuspended     Boolean   @default(false)
+  suspendedAt     DateTime?
+  suspendedById   String?
+  suspendedReason String?
+
+  // ── Soft deletion ──────────────────────────────────
+  deletedAt      DateTime?
+  deletedById    String?
+  deletionReason String?
+
+  // ── Onboarding ─────────────────────────────────────
+  nameArranged Boolean @default(false) // one-time name arrangement gate
+
+  // ── Sabify profile ─────────────────────────────────
+  role              Role    @default(STUDENT)
+  isVerified        Boolean @default(false)
+  contributorBadge  Boolean @default(false)
+  contributorPoints Int     @default(0)
+
+  // ── Relations ──────────────────────────────────────
+  sessions          UserSession[]
+  adminProfile      AdminProfile?
+  uploads           VaultDocument[]      @relation("Uploader")
+  submissions       Submission[]
+  payments          Payment[]
+  cgpaEntries       CgpaEntry[]
+  pinnedDocs        PinnedDocument[]
+  alertReceipts     AlertReceipt[]
+  resetTokens       PasswordResetToken[]
+  aiUsages          AiUsage[]
+  studyGroupMembers StudyGroupMember[]
+  organizedEvents   Event[]              @relation("EventOrganizer")
+  eventRsvps        EventRsvp[]
+  timetableEntries  TimetableEntry[]
+  campusPins        CampusPin[]
+  preference        UserPreference?
+  trustedContacts   TrustedContact[]     @relation("UserTrustedContacts")
+  trustedBy         TrustedContact[]     @relation("TrustedByContacts")
+  safeWalkSessions  SafeWalkSession[]
+  suspendedUsers    User[]               @relation("SuspendedByUser")
+  suspendedByUser   User?                @relation("SuspendedByUser", fields: [suspendedById], references: [id])
+  deletedByUser     User[]               @relation("DeletedByUser")
+  deletedUsers      User?                @relation("DeletedByUser", fields: [deletedById], references: [id])
+  incidentReports   IncidentReport[]
+  resolvedIncidents IncidentReport[]     @relation("ResolvedIncidents")
+  registrations     Registration[]
+  studyGroups       StudyGroup[]         @relation("GroupCreator")
+  groupMessages     GroupMessage[]
+  eventAttendances  EventAttendance[]
+
+  @@index([emailHash])
+  @@index([phoneHash])
+  @@index([matricNumber])
+  @@index([jambRegNo])
+  @@index([universityId])
+  @@index([departmentId])
+  @@index([isSuspended])
+  @@index([role])
+  @@index([deletedAt])
+  @@map("user")
+}
+
+model UserSession {
+  id        String   @id // set via nanoid() in app code
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("user_session")
+}
+
+model PasswordResetToken {
+  id        Int       @id @default(autoincrement())
+  token     String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_token")
+}
+
+model Verification {
+  id         String   @id @default(uuid())
+  identifier String   @unique // e.g. "otp:user@email.com"
+  value      String // the OTP code
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@index([expiresAt])
+  @@map("verification")
+}
+
+model ResetRateLimit {
+  id    Int    @id @default(autoincrement())
+  email String @unique // plaintext normalized email
+
+  // ── Send throttle ─────────────────────────────
+  sendCount       Int       @default(0)
+  lastSendAt      DateTime?
+  sendLockedUntil DateTime?
+
+  // ── OTP failure throttle ──────────────────────
+  otpFailCount   Int       @default(0)
+  otpLockedUntil DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@map("reset_rate_limit")
+}
+
+// ─────────────────────────────────────────────────────
+// 2. ADMIN PROFILES (RBAC)
+// ─────────────────────────────────────────────────────
+
+model AdminProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Role determines scope and permissions
+  role Role // SUPER_ADMIN | UNIVERSITY_ADMIN | COLLEGE_ADMIN | DEPT_ADMIN | COURSE_REP
+
+  // Staff title — display only (what the institution calls them)
+  staffTitle StaffTitle?
+
+  // Scope — determines what this admin can access
+  // Only ONE of these should be non-null per admin
+  universityId String?
+  university   University? @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  collegeId Int?
+  college   College? @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+
+  departmentId Int?
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  courseId String?
+  course   Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([role])
+  @@index([universityId])
+  @@index([collegeId])
+  @@index([departmentId])
+  @@index([courseId])
+  @@map("admin_profile")
+}
+
+// ─────────────────────────────────────────────────────
+// 3. INSTITUTIONAL HIERARCHY
+// ─────────────────────────────────────────────────────
+
+model University {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  logoUrl   String?
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  colleges         College[]
+  students         User[]
+  studyGroups      StudyGroup[]
+  events           Event[]
+  campusPins       CampusPin[]
+  adminProfiles    AdminProfile[]
+  academicSessions AcademicSession[]
+
+  @@index([isActive])
+  @@map("university")
+}
+
+model College {
+  id           Int     @id @default(autoincrement())
+  name         String
+  abbreviation String? // e.g. "SOE" for School of Engineering
+  universityId String
+
+  university    University     @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  departments   Department[]
+  adminProfiles AdminProfile[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, universityId])
+  @@index([universityId])
+  @@map("college")
+}
+
+model Department {
+  id        Int     @id @default(autoincrement())
+  name      String
+  code      String // e.g. "CS" for Computer Science
+  collegeId Int
+  isActive  Boolean @default(true)
+
+  college       College           @relation(fields: [collegeId], references: [id], onDelete: Cascade)
+  courses       Course[]
+  students      User[]            @relation("StudentDepartment")
+  dues          DepartmentalDue[]
+  studyGroups   StudyGroup[]
+  events        Event[]
+  adminProfiles AdminProfile[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Code should be unique per college (but can repeat across colleges)
+  @@unique([code, collegeId])
+  @@unique([name, collegeId])
+  @@index([collegeId])
+  @@map("department")
+}
+
+// ─────────────────────────────────────────────────────
+// 4. ACADEMIC SESSIONS & COURSES
+// ─────────────────────────────────────────────────────
+
+model AcademicSession {
+  id           Int         @id @default(autoincrement())
+  name         String // "2024/2025 First Semester"
+  type         SessionType
+  universityId String
+  startDate    DateTime
+  endDate      DateTime
+  isActive     Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  university    University     @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  courses       Course[]
+  registrations Registration[]
+
+  @@unique([name, universityId])
+  @@index([universityId, isActive])
+  @@map("academic_session")
+}
+
+model Course {
+  id           String  @id @default(cuid())
+  code         String // e.g. "CS201" — must be unique per department/level/semester
+  title        String
+  level        Int // 100 | 200 | 300 | 400 | 500 | 600 — VALIDATE
+  creditUnits  Int // For CGPA calculation — default 3 or 4
+  semester     Int // 1 | 2 — VALIDATE (fall | spring)
+  academicYear String // Format: "YYYY/YYYY" — VALIDATE
+  departmentId Int
+  isActive     Boolean @default(true)
+
+  department        Department       @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  documents         VaultDocument[]
+  courseReps        AdminProfile[]
+  timetables        TimetableEntry[]
+  studyGroups       StudyGroup[]
+  cgpaEntries       CgpaEntry[]
+  registrations     Registration[]
+  academicSessionId Int?
+  academicSession   AcademicSession? @relation(fields: [academicSessionId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Unique: same course code in same dept doesn't exist for same level/sem/year
+  @@unique([code, departmentId, level, semester, academicYear])
+  @@index([departmentId])
+  @@index([level])
+  @@index([semester])
+  @@index([academicSessionId])
+  @@map("course")
+}
+
+model Registration {
+  id           String             @id @default(cuid())
+  studentId    String
+  courseId     String
+  sessionId    Int
+  status       RegistrationStatus @default(ENROLLED)
+  grade        String? // A, B+, B, etc.
+  gradePoints  Float? // 4.0, 3.5, etc.
+  registeredAt DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  student User            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course  Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  session AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId, sessionId])
+  @@index([studentId, sessionId])
+  @@map("registration")
+}
+
+// ─────────────────────────────────────────────────────
+// 5. VAULT (Study Materials)
+// ─────────────────────────────────────────────────────
+
+model VaultDocument {
+  id                 Int         @id @default(autoincrement())
+  title              String
+  category           DocCategory
+  fileUrl            String
+  fileSize           Int? // bytes
+  mimeType           String?
+  ocrText            String? // @db.Text for large OCR
+  isVerified         Boolean     @default(false)
+  downloadCount      Int         @default(0)
+  uploadedAt         DateTime    @default(now())
+  cloudinaryPublicId String?
+  cloudinaryType     String?
+
+  // Soft delete
+  deletedAt   DateTime?
+  deletedById String?
+
+  courseId     String
+  uploadedById String
+
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  uploader    User             @relation("Uploader", fields: [uploadedById], references: [id])
+  submissions Submission[]
+  pins        PinnedDocument[]
+
+  @@index([courseId])
+  @@index([category])
+  @@index([isVerified])
+  @@index([uploadedAt])
+  @@index([deletedAt])
+  @@map("vault_document")
+}
+
+model PinnedDocument {
+  id         Int      @id @default(autoincrement())
+  pinnedAt   DateTime @default(now())
+  userId     String
+  documentId Int
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document VaultDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, documentId])
+  @@index([userId])
+  @@map("pinned_document")
+}
+
+// ─────────────────────────────────────────────────────
+// 6. SUBMISSIONS (LOGBOOK)
+// ─────────────────────────────────────────────────────
+
+model Submission {
+  id          Int              @id @default(autoincrement())
+  status      SubmissionStatus @default(PENDING)
+  note        String?
+  submittedAt DateTime?
+
+  // Proof of submission — photo or file
+  proofFileUrl  String?
+  proofMimeType String?
+  proofSize     Int? // bytes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId     String
+  documentId Int
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document VaultDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, documentId])
+  @@index([userId])
+  @@index([status])
+  @@map("submission")
+}
+
+// ─────────────────────────────────────────────────────
+// 7. CGPA TRACKING
+// ─────────────────────────────────────────────────────
+
+model CgpaEntry {
+  id           Int    @id @default(autoincrement())
+  courseCode   String
+  courseTitle  String
+  creditUnits  Int
+  grade        String // A | B+ | B | C+ | C | D | E | F
+  gradePoints  Float // 4.0 | 3.5 | 3.0 | etc.
+  semester     Int // 1 | 2
+  academicYear String // "YYYY/YYYY"
+  gpa          Float? // Calculated GPA for this semester (optional display)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId   String
+  courseId String?
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([academicYear, semester])
+  @@map("cgpa_entry")
+}
+
+// ─────────────────────────────────────────────────────
+// 8. FINANCIAL HUB
+// ─────────────────────────────────────────────────────
+
+model DepartmentalDue {
+  id           Int       @id @default(autoincrement())
+  title        String
+  description  String?
+  amount       Int // kobo (₦X.00 = X * 100 kobo) — NEVER use floats for money
+  deadline     DateTime?
+  academicYear String // "YYYY/YYYY"
+  isActive     Boolean   @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  departmentId Int
+
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  payments   Payment[]
+
+  @@index([departmentId])
+  @@index([isActive])
+  @@map("departmental_due")
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  amount        Int // kobo
+  status        PaymentStatus @default(PENDING)
+  reference     String        @unique // Paystack/Flutterwave reference
+  receiptUrl    String? // Generated receipt URL
+  gateway       String? // "paystack" | "flutterwave"
+  paymentMethod String? // "card" | "bank" | "wallet" | "ussd"
+  paidAt        DateTime?
+
+  // Soft delete
+  deletedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  dueId  Int
+
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  due     DepartmentalDue @relation(fields: [dueId], references: [id], onDelete: Cascade)
+  receipt PaymentReceipt?
+
+  @@index([userId])
+  @@index([dueId])
+  @@index([status])
+  @@index([paidAt])
+  @@map("payment")
+}
+
+model PaymentReceipt {
+  id            Int       @id @default(autoincrement())
+  paymentId     Int       @unique
+  receiptNumber String    @unique // Human-readable receipt number
+  qrCode        String? // Base64 or URL to QR code
+  verifyHash    String    @unique // HMAC for tampering detection
+  issuedAt      DateTime  @default(now())
+  expiresAt     DateTime? // For time-limited verification
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([receiptNumber])
+  @@map("payment_receipt")
+}
+
+// ─────────────────────────────────────────────────────
+// 9. SAFETY & ALERTS
+// ─────────────────────────────────────────────────────
+
+model SafetyAlert {
+  id        Int           @id @default(autoincrement())
+  title     String
+  content   String // @db.Text if needed
+  severity  AlertSeverity
+  sentAt    DateTime      @default(now())
+  expiresAt DateTime?
+  sentById  String? // userId of sender (nullable if sender is deleted)
+  channel   AlertChannel? // "push" | "sms" | "email"
+
+  receipts   AlertReceipt[]
+  campusPins CampusPin[]
+
+  @@index([severity])
+  @@index([sentAt])
+  @@map("safety_alert")
+}
+
+model AlertReceipt {
+  id         Int       @id @default(autoincrement())
+  readAt     DateTime?
+  receivedAt DateTime  @default(now())
+  alertId    Int
+  userId     String
+
+  alert SafetyAlert @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([alertId, userId])
+  @@index([userId])
+  @@map("alert_receipt")
+}
+
+// ─────────────────────────────────────────────────────
+// 10. SAFE-WALK & INCIDENT REPORTS (SHIELD)
+// ─────────────────────────────────────────────────────
+
+model TrustedContact {
+  id        Int    @id @default(autoincrement())
+  userId    String
+  contactId String
+  status    String @default("ACTIVE") // PENDING | ACTIVE | BLOCKED
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User @relation("UserTrustedContacts", fields: [userId], references: [id], onDelete: Cascade)
+  contact User @relation("TrustedByContacts", fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contactId])
+  @@index([userId, status])
+  @@index([contactId])
+  @@map("trusted_contact")
+}
+
+model SafeWalkSession {
+  id          String    @id @default(cuid())
+  userId      String
+  startedAt   DateTime  @default(now())
+  eta         DateTime // expected arrival time
+  checkedInAt DateTime?
+  status      String    @default("ACTIVE") // ACTIVE | COMPLETED | MISSED | CANCELLED
+
+  // Last known location (optional)
+  latitude  Float?
+  longitude Float?
+
+  // Notification sent to emergency contacts?
+  notificationSentAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([startedAt])
+  @@map("safe_walk_session")
+}
+
+model IncidentReport {
+  id           Int            @id @default(autoincrement())
+  userId       String
+  type         IncidentType
+  title        String
+  description  String         @db.Text
+  location     String?
+  latitude     Float?
+  longitude    Float?
+  status       IncidentStatus @default(REPORTED)
+  isAnonymous  Boolean        @default(false)
+  reportedAt   DateTime       @default(now())
+  resolvedAt   DateTime?
+  resolvedById String?
+
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resolvedBy  User?           @relation("ResolvedIncidents", fields: [resolvedById], references: [id])
+  attachments IncidentMedia[]
+
+  @@index([userId, status])
+  @@index([type])
+  @@index([reportedAt])
+  @@map("incident_report")
+}
+
+model IncidentMedia {
+  id         Int      @id @default(autoincrement())
+  incidentId Int
+  fileUrl    String
+  mimeType   String?
+  uploadedAt DateTime @default(now())
+
+  incident IncidentReport @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId])
+  @@map("incident_media")
+}
+
+// ─────────────────────────────────────────────────────
+// 11. AI USAGE TRACKING
+// ─────────────────────────────────────────────────────
+
+model AiUsage {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String // 'chat' | 'summarize' | 'quiz' | 'cgpa_analysis' | etc.
+  prompt    String? // Optional — store (trimmed) prompt for abuse monitoring
+  tokens    Int      @default(0) // Token usage for quota tracking
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, action, createdAt])
+  @@map("ai_usage")
+}
+
+// ─────────────────────────────────────────────────────
+// 12. STUDY GROUPS
+// ─────────────────────────────────────────────────────
+
+model StudyGroup {
+  id          String          @id @default(cuid())
+  name        String
+  description String?
+  courseId    String // FK to actual Course, not free text
+  visibility  GroupVisibility @default(PUBLIC)
+  mode        GroupMode       @default(HYBRID)
+  location    String? // physical meeting spot
+  meetingTime String? // human-readable e.g. "Tuesdays 8pm"
+  maxMembers  Int             @default(10)
+  avatar      String? // emoji or image URL
+  isActive    Boolean         @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  universityId String?
+  departmentId Int?
+  createdById  String?
+
+  university University? @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  course     Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdBy  User?       @relation("GroupCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  members  StudyGroupMember[]
+  tags     StudyGroupTag[]
+  messages GroupMessage[]
+
+  @@index([universityId])
+  @@index([departmentId])
+  @@index([courseId])
+  @@index([visibility])
+  @@index([createdById])
+  @@map("study_group")
+}
+
+model StudyGroupTag {
+  id      Int    @id @default(autoincrement())
+  name    String
+  groupId String
+
+  group StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([name, groupId])
+  @@index([groupId])
+  @@map("study_group_tag")
+}
+
+model StudyGroupMember {
+  id       Int             @id @default(autoincrement())
+  role     GroupMemberRole @default(MEMBER)
+  joinedAt DateTime        @default(now())
+  userId   String
+  groupId  String
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, groupId])
+  @@index([groupId])
+  @@map("study_group_member")
+}
+
+model GroupMessage {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  sentAt    DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  groupId   String
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group StudyGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId, sentAt])
+  @@map("group_message")
+}
+
+// ─────────────────────────────────────────────────────
+// 13. EVENTS
+// ─────────────────────────────────────────────────────
+
+model Event {
+  id          String        @id @default(cuid())
+  title       String
+  description String // @db.Text if needed
+  location    String?
+  imageUrl    String?
+  startAt     DateTime
+  endAt       DateTime?
+  isPublished Boolean       @default(false) // false = pending review; true = live
+  category    EventCategory @default(GENERAL)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizerId  String
+  universityId String?
+  departmentId Int?
+
+  organizer  User        @relation("EventOrganizer", fields: [organizerId], references: [id])
+  university University? @relation(fields: [universityId], references: [id], onDelete: SetNull)
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  rsvps      EventRsvp[]
+  attendance EventAttendance[]
+
+  @@index([organizerId])
+  @@index([universityId])
+  @@index([departmentId])
+  @@index([startAt])
+  @@index([isPublished])
+  @@map("event")
+}
+
+model EventRsvp {
+  id        Int        @id @default(autoincrement())
+  status    RsvpStatus @default(GOING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  userId    String
+  eventId   String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@index([eventId])
+  @@map("event_rsvp")
+}
+
+model EventAttendance {
+  id          String   @id @default(cuid())
+  eventId     String
+  userId      String
+  checkedInAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@map("event_attendance")
+}
+
+// ─────────────────────────────────────────────────────
+// 14. TIMETABLE
+// ─────────────────────────────────────────────────────
+
+model TimetableEntry {
+  id           Int       @id @default(autoincrement())
+  day          WeekDay
+  startMinutes Int // 0-1440 (minutes from 00:00) for easy comparison
+  endMinutes   Int
+  courseId     String // FK to actual Course
+  venue        String?
+  type         ClassType @default(LECTURE)
+  userId       String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([userId, day])
+  @@index([courseId])
+  @@map("timetable_entry")
+}
+
+// ─────────────────────────────────────────────────────
+// 15. CAMPUS MAP & PINS
+// ─────────────────────────────────────────────────────
+
+model CampusPin {
+  id          Int       @id @default(autoincrement())
+  label       String
+  description String?
+  type        PinType
+  latitude    Float
+  longitude   Float
+  isVerified  Boolean   @default(false) // admin-verified pins show to everyone
+  isActive    Boolean   @default(true)
+  expiresAt   DateTime? // for temporary pins (e.g. flooding report)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  submittedById String?
+  submittedBy   User?   @relation(fields: [submittedById], references: [id], onDelete: SetNull)
+
+  // A pin can be linked to a safety alert
+  alertId Int?
+  alert   SafetyAlert? @relation(fields: [alertId], references: [id], onDelete: SetNull)
+
+  universityId String?
+  university   University? @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  @@index([universityId, type])
+  @@index([isVerified, isActive])
+  @@index([expiresAt])
+  @@map("campus_pin")
+}
+
+// ─────────────────────────────────────────────────────
+// 16. USER PREFERENCES
+// ─────────────────────────────────────────────────────
+
+model UserPreference {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  theme                String  @default("light") // "light" | "dark"
+  notifStudyGroups     Boolean @default(true)
+  notifEvents          Boolean @default(true)
+  notifAssignments     Boolean @default(true)
+  notifCgpa            Boolean @default(true)
+  notifWeeklyTimetable Boolean @default(true)
+  notifSafetyAlerts    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_preference")
+}
+
+// ─────────────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────────────
+
+enum Role {
+  OWNER // Absolute authority — seed directly, never assignable via UI
+  LAW_ENFORCEMENT // Government / LEA — read + alert only
+  SUPER_ADMIN // Platform-wide admin
+  UNIVERSITY_ADMIN // Scoped to one university (VC, DVC, Registrar, Bursar, etc.)
+  COLLEGE_ADMIN // Scoped to one college / faculty (Dean, Sub-Dean, etc.)
+  DEPT_ADMIN // Scoped to one department (HOD, Deputy HOD, etc.)
+  COURSE_REP // Scoped to one course
+  CONTRIBUTOR // Trusted student — can upload and verify docs
+  STUDENT // Default
+}
+
+// Staff titles — display label only, does not affect permissions.
+// Assign alongside corresponding admin role in AdminProfile
+enum StaffTitle {
+  // ── University-level ─────────────────────────────
+  VC // Vice-Chancellor
+  DVC_ACADEMIC // Deputy Vice-Chancellor (Academic)
+  DVC_ADMIN // Deputy Vice-Chancellor (Administration)
+  REGISTRAR // University Registrar
+  BURSAR // University Bursar
+  UNIVERSITY_LIBRARIAN
+  DEAN_OF_STUDENTS // Dean of Student Affairs
+  PROVOST
+  DIRECTOR // Director of a university-level unit
+
+  // ── College / Faculty-level ───────────────────────
+  DEAN // Dean of College/Faculty
+  ASSOCIATE_DEAN
+  SUB_DEAN
+
+  // ── Department-level ──────────────────────────────
+  HOD // Head of Department
+  DEPUTY_HOD
+  COURSE_COORDINATOR
+}
+
+enum DocCategory {
+  PAST_QUESTION
+  TEXTBOOK
+  LECTURE_NOTE
+  ASSIGNMENT
+  SLIDE
+}
+
+enum SubmissionStatus {
+  PENDING // Not yet submitted
+  SUBMITTED // Submitted with proof
+  RETURNED // Returned for revision
+  GRADED // Graded by instructor
+}
+
+enum PaymentStatus {
+  PENDING // Payment initiated, awaiting gateway response
+  SUCCESS // Payment confirmed
+  FAILED // Payment failed
+  REFUNDED // Payment refunded
+}
+
+enum AlertSeverity {
+  INFO // General information
+  WARNING // Warning — take caution
+  URGENT // Urgent — immediate action needed
+}
+
+enum AlertChannel {
+  PUSH
+  SMS
+  EMAIL
+}
+
+enum GroupVisibility {
+  PUBLIC // Anyone can see and join
+  PRIVATE // Invite-only
+}
+
+enum GroupMode {
+  ONLINE // Virtual meetings
+  PHYSICAL // In-person meetings
+  HYBRID // Both virtual and in-person
+}
+
+enum GroupMemberRole {
+  ADMIN // Can manage group, remove members
+  MEMBER // Regular member
+}
+
+enum EventCategory {
+  GENERAL
+  ACADEMIC
+  SOCIAL
+  SPORTS
+  CULTURAL
+  RELIGIOUS
+  CAREER
+  TECH
+  HEALTH
+  OTHER
+}
+
+enum RsvpStatus {
+  GOING
+  MAYBE
+  NOT_GOING
+}
+
+enum WeekDay {
+  MON
+  TUE
+  WED
+  THU
+  FRI
+  SAT
+  SUN
+}
+
+enum ClassType {
+  LECTURE
+  LAB
+  TUTORIAL
+  SEMINAR
+  PRACTICAL
+}
+
+enum PinType {
+  ALERT // Safety alert pinned to location
+  CAFE
+  LIBRARY
+  WIFI
+  CHARGING
+  HEALTH
+  ATM
+  TRANSPORT
+  TOILET
+  LOST_AND_FOUND
+  OTHER
+}
+
+enum SessionType {
+  FIRST_SEMESTER
+  SECOND_SEMESTER
+  SUMMER_SESSION
+}
+
+enum RegistrationStatus {
+  ENROLLED
+  DROPPED
+  COMPLETED
+  FAILED
+}
+
+enum IncidentType {
+  THEFT
+  HARASSMENT
+  ASSAULT
+  ACCIDENT
+  FIRE
+  MEDICAL
+  STRANGE_BEHAVIOR
+  OTHER
+}
+
+enum IncidentStatus {
+  REPORTED
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
