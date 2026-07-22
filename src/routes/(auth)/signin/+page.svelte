@@ -3,7 +3,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
-	import { Mail, Lock, ArrowRight, Eye, EyeOff, BookOpen, CreditCard, Shield, Sparkles } from '@lucide/svelte';
+	import { Mail, Lock, ArrowRight, Eye, EyeOff, BookOpen, CreditCard, Shield, Sparkles, Home } from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
@@ -111,12 +111,36 @@
 	<meta name="description" content="Signin to your Sabify account" />
 </svelte:head>
 
-<div class="min-h-screen flex flex-col lg:flex-row">
+<!-- Header Navigation -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
+	<div class="px-6 md:px-12 h-16 flex items-center justify-between">
+		<!-- Logo -->
+		<div class="inline-flex items-center gap-3">
+			<!-- <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center font-bold text-sm text-primary-foreground">
+				S
+			</div> -->
+			<span class="font-semibold text-foreground">Sabify</span>
+		</div>
+
+		<!-- Home Button -->
+		<Button
+			variant="ghost"
+			size="sm"
+			onclick={() => goto('/')}
+			class="gap-2"
+		>
+			<Home size={16} />
+			<span class="hidden sm:inline">Home</span>
+		</Button>
+	</div>
+</header>
+
+<div class="min-h-screen flex flex-col lg:flex-row pt-16">
 	<!-- Left side - Hero -->
-	<div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground flex-col justify-between p-12 relative overflow-hidden">
+	<div class="hidden lg:flex lg:w-1/2 bg-foreground text-primary-foreground flex-col justify-between p-12 relative overflow-hidden">
 		<!-- Decorative elements -->
-		<div class="absolute top-20 right-20 w-64 h-64 rounded-full bg-primary-foreground/5 blur-3xl" />
-		<div class="absolute bottom-20 left-20 w-48 h-48 rounded-full bg-primary-foreground/5 blur-2xl" />
+		<div class="absolute top-20 right-1/4 w-72 h-72 bg-primary-foreground/5 rounded-full blur-3xl pointer-events-none" />
+		<div class="absolute -bottom-20 left-1/3 w-96 h-96 bg-primary-foreground/5 rounded-full blur-3xl pointer-events-none" />
 		
 		<div>
 			<div class="inline-flex items-center gap-3 mb-12 relative z-10">
@@ -169,7 +193,7 @@
 	<!-- Right side - Signin Form -->
 	<div class="w-full lg:w-1/2 flex flex-col items-center justify-center p-6 md:p-12 bg-background">
 		<div class="w-full max-w-md">
-			<!-- Mobile Logo -->
+			<!-- Mobile Logo (Hidden on desktop) -->
 			<div class="lg:hidden mb-8 text-center">
 				<div class="inline-flex items-center gap-3">
 					<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center font-bold text-lg text-primary-foreground">
@@ -199,7 +223,7 @@
 
 					<!-- Email Field -->
 					<div class="space-y-2">
-						<label for="email" class="text-sm font-medium">
+						<label for="email" class="text-sm font-medium mb-2 block">
 							Email address
 						</label>
 						<div class="relative">
@@ -220,7 +244,7 @@
 
 					<!-- Password Field -->
 					<div class="space-y-2">
-						<div class="flex items-center justify-between">
+						<div class="flex items-center justify-between mb-2 block">
 							<label for="password" class="text-sm font-medium">Password</label>
 							<a href="/forgot-password" class="text-xs text-primary hover:underline font-medium">
 								Forgot password?

@@ -23,3 +23,13 @@ export interface UniConfig {
   acronym: string;
   receipt?: UniReceiptConfig;  // undefined = no auto-fill for this uni
 }
+
+export interface University {
+  id: string;
+  name: string;
+  acronym: string;
+  motto: string;
+  web: string;
+  logo: string;
+  active: boolean;
+}

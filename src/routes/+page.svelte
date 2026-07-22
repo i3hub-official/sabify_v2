@@ -1,4 +1,4 @@
-<!-- src/routes/(marketing)/+page.svelte -->
+<!-- src/routes/+page.svelte -->
 <script lang="ts">
   import { onMount } from 'svelte';
   import { theme } from '$lib/stores/theme';
@@ -6,7 +6,7 @@
     BookOpen, FileText, ClipboardList, CreditCard, QrCode,
     Bell, Footprints, Calendar, Megaphone, Layers,
     ArrowRight, File, DollarSign, AlertTriangle,
-    Library, Building2, GraduationCap, Sparkles,
+    Library, Building2, GraduationCap, Shield,
     Mail, ChevronDown, Check
   } from '@lucide/svelte';
   import { Button } from '$lib/components/ui/button';
@@ -22,47 +22,18 @@
   import { Input } from '$lib/components/ui/input';
   import { Tabs, TabsContent, TabsList, TabsTrigger } from '$lib/components/ui/tabs';
   import { goto } from '$app/navigation';
+  import UniversityCTA from '$lib/components/UniversityCTA.svelte';
 
   onMount(() => {
     theme.init();
   });
 
-  let email = '';
-  let isSubscribed = false;
+  // Navigation handler
+  const handleNavigate = (path: string) => () => {
+    console.log(`Navigating to ${path}`);
+    goto(path);
+  };
 
-  async function handleSubscribe(e: Event) {
-    e.preventDefault();
-    // TODO: Connect to your newsletter service
-    isSubscribed = true;
-    setTimeout(() => (isSubscribed = false), 3000);
-  }
-
-  const faqs = [
-    {
-      q: 'What universities does Sabify support?',
-      a: 'Sabify is built to work with any Nigerian and West African university structure. Whether you organize by Faculty, College, Department, or Levels, Sabify adapts. We currently support 100+ universities and are expanding weekly.'
-    },
-    {
-      q: 'How does the submission proof work?',
-      a: 'When you submit an assignment through Sabify, we timestamp it with photo evidence. Your submission is hashed and stored immutably. No more "I never received it" disputes.'
-    },
-    {
-      q: 'Is my payment receipt really tamper-proof?',
-      a: 'Yes. Each payment generates a QR receipt signed with institutional keys. Treasurers and department heads can verify it instantly. No more manual ledger searches.'
-    },
-    {
-      q: 'Can my university customize Sabify?',
-      a: 'Absolutely. Sabify is white-labelable. Your university can brand it with your logo, colors, and custom workflows. Contact our sales team for enterprise plans.'
-    },
-    {
-      q: 'How private is my data?',
-      a: 'Very. We encrypt all personally identifiable information at rest and in transit. Your past questions, payment history, and location data are yours. We never sell data.'
-    },
-    {
-      q: 'Is there a student cost?',
-      a: 'Sabify is free for students. Universities pay an institutional subscription per semester. Some departments may charge small fees for premium features.'
-    }
-  ];
 </script>
 
 <svelte:head>
@@ -73,10 +44,14 @@
   />
 </svelte:head>
 
+<!-- Main wrapper to prevent horizontal scroll -->
+<div class="overflow-x-hidden w-full">
+
 <!-- ════════════════════════════════════════════════════════════════════════════════
      HERO
      ════════════════════════════════════════════════════════════════════════════════ -->
-<section class="relative min-h-screen flex items-center justify-center px-4 py-20">
+<section class="relative min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-12 py-20 overflow-hidden">
+
   <div class="absolute inset-0 -z-10">
     <div
       class="absolute top-20 right-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl pointer-events-none"
@@ -86,26 +61,34 @@
     ></div>
   </div>
 
-  <div class="max-w-3xl mx-auto text-center space-y-8">
-       <!-- Headline -->
-    <div class="space-y-4">
-      <h1 class="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight">
+  <!-- Logo - Left on wide screens, centered on mobile -->
+  <div class="absolute top-4 sm:top-6 md:top-8 left-1/2 md:left-6 lg:left-12 -translate-x-1/2 md:-translate-x-0 z-10">
+    <div class="inline-flex items-center gap-2 sm:gap-3 relative z-10">
+      <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-primary/20 flex items-center justify-center font-bold text-base sm:text-lg backdrop-blur-sm border border-primary/10">S</div>
+      <span class="text-xl sm:text-2xl font-bold">Sabify</span>
+    </div>
+  </div>
+
+  <div class="w-full max-w-6xl mx-auto text-center space-y-6 sm:space-y-8 px-4 sm:px-0">
+    <!-- Headline -->
+    <div class="space-y-3 sm:space-y-4">
+      <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
         Everything Campus.<br />
         <span class="italic text-primary">One App.</span>
       </h1>
-      <p class="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+      <p class="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed px-4 sm:px-0">
         Past questions. Departmental dues. Campus safety. Events. Assignments. Textbooks.
         Everything your university never gave you—now in one platform.
       </p>
     </div>
 
     <!-- CTA Buttons -->
-    <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-      <Button size="lg" class="gap-2 h-12 px-8" onclick={() => goto('/signup')}>
-        Get started <ArrowRight size={18} />
+    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-2 sm:pt-4">
+      <Button size="lg" class="gap-2 h-11 sm:h-12 px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto" onclick={handleNavigate('/signin')}>
+        Continue to Sign in <ArrowRight size={18} />
       </Button>
-      <Button size="lg" variant="outline" class="h-12 px-8" onclick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>
-        See how it works
+      <Button size="lg" variant="outline" class="h-11 sm:h-12 px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto" onclick={handleNavigate('/signup')}>
+        Get started
       </Button>
     </div>
   </div>
@@ -114,26 +97,26 @@
 <!-- ════════════════════════════════════════════════════════════════════════════════
      REAL PROBLEMS
      ════════════════════════════════════════════════════════════════════════════════ -->
-<section class="py-20 px-4 bg-muted/30" id="features">
-  <div class="max-w-6xl mx-auto space-y-12">
+<section class="py-16 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/30 overflow-hidden" id="features">
+  <div class="w-full max-w-7xl mx-auto space-y-10 sm:space-y-12">
     <!-- Header -->
-    <div class="text-center space-y-4">
+    <div class="text-center space-y-3 sm:space-y-4 px-4 sm:px-0">
       <Badge variant="secondary" class="mx-auto">Real problems. Real solutions.</Badge>
-      <h2 class="text-4xl md:text-5xl font-bold">What actually breaks at Nigerian universities</h2>
-      <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold">What actually breaks at Nigerian universities</h2>
+      <p class="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
         We asked students across West Africa. Here's what they said.
       </p>
     </div>
 
     <!-- Problems Grid -->
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       <!-- Past Questions -->
       <Card class="hover:shadow-lg hover:border-primary/50 transition-all">
         <CardHeader>
           <div class="flex items-start justify-between">
             <FileText class="text-primary" size={24} />
           </div>
-          <CardTitle class="text-xl">"Who has last year's past question?"</CardTitle>
+          <CardTitle class="text-lg sm:text-xl">"Who has last year's past question?"</CardTitle>
         </CardHeader>
         <CardContent class="space-y-4">
           <CardDescription>
@@ -153,7 +136,7 @@
           <div class="flex items-start justify-between">
             <DollarSign class="text-primary" size={24} />
           </div>
-          <CardTitle class="text-xl">"I paid my dues, where's my receipt?"</CardTitle>
+          <CardTitle class="text-lg sm:text-xl">"I paid my dues, where's my receipt?"</CardTitle>
         </CardHeader>
         <CardContent class="space-y-4">
           <CardDescription>
@@ -173,7 +156,7 @@
           <div class="flex items-start justify-between">
             <AlertTriangle class="text-primary" size={24} />
           </div>
-          <CardTitle class="text-xl">"No one told me the exam was rescheduled"</CardTitle>
+          <CardTitle class="text-lg sm:text-xl">"No one told me the exam was rescheduled"</CardTitle>
         </CardHeader>
         <CardContent class="space-y-4">
           <CardDescription>
@@ -193,7 +176,7 @@
           <div class="flex items-start justify-between">
             <ClipboardList class="text-primary" size={24} />
           </div>
-          <CardTitle class="text-xl">"The lecturer said I never submitted"</CardTitle>
+          <CardTitle class="text-lg sm:text-xl">"The lecturer said I never submitted"</CardTitle>
         </CardHeader>
         <CardContent class="space-y-4">
           <CardDescription>
@@ -213,7 +196,7 @@
           <div class="flex items-start justify-between">
             <Footprints class="text-primary" size={24} />
           </div>
-          <CardTitle class="text-xl">"Walking back from library at 10pm is risky"</CardTitle>
+          <CardTitle class="text-lg sm:text-xl">"Walking back from library at 10pm is risky"</CardTitle>
         </CardHeader>
         <CardContent class="space-y-4">
           <CardDescription>
@@ -233,7 +216,7 @@
           <div class="flex items-start justify-between">
             <Calendar class="text-primary" size={24} />
           </div>
-          <CardTitle class="text-xl">"I missed the department's career talk"</CardTitle>
+          <CardTitle class="text-lg sm:text-xl">"I missed the department's career talk"</CardTitle>
         </CardHeader>
         <CardContent class="space-y-4">
           <CardDescription>
@@ -253,19 +236,19 @@
 <!-- ════════════════════════════════════════════════════════════════════════════════
      FLEXIBLE STRUCTURE
      ════════════════════════════════════════════════════════════════════════════════ -->
-<section class="py-20 px-4">
-  <div class="max-w-6xl mx-auto space-y-12">
+<section class="py-16 sm:py-20 px-4 sm:px-6 md:px-12 overflow-hidden">
+  <div class="w-full max-w-7xl mx-auto space-y-10 sm:space-y-12">
     <!-- Header -->
-    <div class="text-center space-y-4">
+    <div class="text-center space-y-3 sm:space-y-4 px-4 sm:px-0">
       <Badge variant="secondary" class="mx-auto">Built for every university</Badge>
-      <h2 class="text-4xl md:text-5xl font-bold">One platform. Any structure.</h2>
-      <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold">One platform. Any structure.</h2>
+      <p class="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
         Faculty, College, Department, Level — whatever your university calls it, Sabify adapts.
       </p>
     </div>
 
     <!-- Structure Cards -->
-    <div class="grid md:grid-cols-3 gap-6">
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       <Card class="text-center">
         <CardHeader>
           <div class="flex justify-center mb-4">
@@ -317,29 +300,64 @@
 <!-- ════════════════════════════════════════════════════════════════════════════════
      FEATURES (TABS)
      ════════════════════════════════════════════════════════════════════════════════ -->
-<section class="py-20 px-4 bg-muted/30">
-  <div class="max-w-6xl mx-auto space-y-12">
+<section class="py-16 sm:py-20 px-4 sm:px-6 md:px-12 bg-muted/30 overflow-hidden">
+  <div class="w-full max-w-7xl mx-auto space-y-10 sm:space-y-12">
     <!-- Header -->
-    <div class="text-center space-y-4">
+    <div class="text-center space-y-3 sm:space-y-4 px-4 sm:px-0">
       <Badge variant="secondary" class="mx-auto">Everything you need</Badge>
-      <h2 class="text-4xl md:text-5xl font-bold">Sabify's core features</h2>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold">Sabify's core features</h2>
     </div>
 
     <!-- Tabs -->
     <Tabs defaultValue="vault" class="w-full">
-      <TabsList class="grid w-full md:w-fit mx-auto md:grid-cols-4">
-        <TabsTrigger value="vault">Vault</TabsTrigger>
-        <TabsTrigger value="events">Events</TabsTrigger>
-        <TabsTrigger value="pay">Pay</TabsTrigger>
-        <TabsTrigger value="shield">Shield</TabsTrigger>
+      <TabsList class="grid w-full sm:w-fit mx-auto grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 p-2 bg-muted/50 rounded-xl border border-border/50">
+        <TabsTrigger 
+          value="vault" 
+          class="group flex flex-col sm:flex-row items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-lg border border-transparent transition-all duration-200 data-[state=active]:bg-amber-500 data-[state=active]:text-white data-[state=active]:border-amber-600 data-[state=active]:shadow-md hover:bg-amber-500/10 hover:border-amber-500/30 data-[state=inactive]:text-muted-foreground"
+        >
+          <div class="p-1.5 rounded-md bg-amber-500/10 group-data-[state=active]:bg-white/20">
+            <BookOpen class="text-amber-600 group-data-[state=active]:text-white" size={18} />
+          </div>
+          <span class="text-sm font-semibold">Vault</span>
+        </TabsTrigger>
+
+        <TabsTrigger 
+          value="events" 
+          class="group flex flex-col sm:flex-row items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-lg border border-transparent transition-all duration-200 data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=active]:border-blue-600 data-[state=active]:shadow-md hover:bg-blue-500/10 hover:border-blue-500/30 data-[state=inactive]:text-muted-foreground"
+        >
+          <div class="p-1.5 rounded-md bg-blue-500/10 group-data-[state=active]:bg-white/20">
+            <Calendar class="text-blue-600 group-data-[state=active]:text-white" size={18} />
+          </div>
+          <span class="text-sm font-semibold">Events</span>
+        </TabsTrigger>
+
+        <TabsTrigger 
+          value="pay" 
+          class="group flex flex-col sm:flex-row items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-lg border border-transparent transition-all duration-200 data-[state=active]:bg-emerald-500 data-[state=active]:text-white data-[state=active]:border-emerald-600 data-[state=active]:shadow-md hover:bg-emerald-500/10 hover:border-emerald-500/30 data-[state=inactive]:text-muted-foreground"
+        >
+          <div class="p-1.5 rounded-md bg-emerald-500/10 group-data-[state=active]:bg-white/20">
+            <CreditCard class="text-emerald-600 group-data-[state=active]:text-white" size={18} />
+          </div>
+          <span class="text-sm font-semibold">Pay</span>
+        </TabsTrigger>
+
+        <TabsTrigger 
+          value="shield" 
+          class="group flex flex-col sm:flex-row items-center justify-center gap-2 px-4 py-3 sm:py-2.5 rounded-lg border border-transparent transition-all duration-200 data-[state=active]:bg-rose-500 data-[state=active]:text-white data-[state=active]:border-rose-600 data-[state=active]:shadow-md hover:bg-rose-500/10 hover:border-rose-500/30 data-[state=inactive]:text-muted-foreground"
+        >
+          <div class="p-1.5 rounded-md bg-rose-500/10 group-data-[state=active]:bg-white/20">
+            <Shield class="text-rose-600 group-data-[state=active]:text-white" size={18} />
+          </div>
+          <span class="text-sm font-semibold">Shield</span>
+        </TabsTrigger>
       </TabsList>
 
       <!-- Vault Tab -->
       <TabsContent value="vault" class="space-y-8 mt-8">
-        <div class="grid md:grid-cols-3 gap-6">
-          <Card>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <Card class="border-l-4 border-l-amber-400">
             <CardHeader>
-              <BookOpen class="text-primary mb-2" size={24} />
+              <BookOpen class="text-amber-600 mb-2" size={24} />
               <CardTitle>Past Questions</CardTitle>
             </CardHeader>
             <CardContent>
@@ -347,13 +365,13 @@
                 Years of exams from your department. Searchable. Downloadable. No more WhatsApp
                 scavenger hunts.
               </CardDescription>
-              <Badge class="mt-4">Type [T]</Badge>
+              <Badge class="mt-4 bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100">Type [T]</Badge>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card class="border-l-4 border-l-amber-400">
             <CardHeader>
-              <File class="text-primary mb-2" size={24} />
+              <File class="text-amber-600 mb-2" size={24} />
               <CardTitle>Assignment Prompts</CardTitle>
             </CardHeader>
             <CardContent>
@@ -361,13 +379,13 @@
                 Every assignment from every course. Submit with timestamped proof. No more
                 "missing script" disputes.
               </CardDescription>
-              <Badge class="mt-4">Type [A]</Badge>
+              <Badge class="mt-4 bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100">Type [A]</Badge>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card class="border-l-4 border-l-amber-400">
             <CardHeader>
-              <Library class="text-primary mb-2" size={24} />
+              <Library class="text-amber-600 mb-2" size={24} />
               <CardTitle>Textbooks &amp; Handouts</CardTitle>
             </CardHeader>
             <CardContent>
@@ -375,7 +393,7 @@
                 OCR-powered. Search inside scanned handouts. Pin for offline access. Your library,
                 anywhere.
               </CardDescription>
-              <Badge class="mt-4">Type [B]</Badge>
+              <Badge class="mt-4 bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100">Type [B]</Badge>
             </CardContent>
           </Card>
         </div>
@@ -383,10 +401,10 @@
 
       <!-- Events Tab -->
       <TabsContent value="events" class="space-y-8 mt-8">
-        <div class="grid md:grid-cols-3 gap-6">
-          <Card>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <Card class="border-l-4 border-l-blue-400">
             <CardHeader>
-              <Calendar class="text-primary mb-2" size={24} />
+              <Calendar class="text-blue-600 mb-2" size={24} />
               <CardTitle>University Calendar</CardTitle>
             </CardHeader>
             <CardContent>
@@ -397,9 +415,9 @@
             </CardContent>
           </Card>
 
-          <Card>
+          <Card class="border-l-4 border-l-blue-400">
             <CardHeader>
-              <Megaphone class="text-primary mb-2" size={24} />
+              <Megaphone class="text-blue-600 mb-2" size={24} />
               <CardTitle>Student Union Events</CardTitle>
             </CardHeader>
             <CardContent>
@@ -409,9 +427,9 @@
             </CardContent>
           </Card>
 
-          <Card>
+          <Card class="border-l-4 border-l-blue-400">
             <CardHeader>
-              <Bell class="text-primary mb-2" size={24} />
+              <Bell class="text-blue-600 mb-2" size={24} />
               <CardTitle>Smart Reminders</CardTitle>
             </CardHeader>
             <CardContent>
@@ -425,10 +443,10 @@
 
       <!-- Pay Tab -->
       <TabsContent value="pay" class="space-y-8 mt-8">
-        <div class="grid md:grid-cols-2 gap-6">
-          <Card>
+        <div class="grid sm:grid-cols-2 gap-4 sm:gap-6">
+          <Card class="border-l-4 border-l-emerald-400">
             <CardHeader>
-              <CreditCard class="text-primary mb-2" size={24} />
+              <CreditCard class="text-emerald-600 mb-2" size={24} />
               <CardTitle>Pay Any Due</CardTitle>
             </CardHeader>
             <CardContent>
@@ -438,9 +456,9 @@
             </CardContent>
           </Card>
 
-          <Card>
+          <Card class="border-l-4 border-l-emerald-400">
             <CardHeader>
-              <QrCode class="text-primary mb-2" size={24} />
+              <QrCode class="text-emerald-600 mb-2" size={24} />
               <CardTitle>Tamper-Proof Receipts</CardTitle>
             </CardHeader>
             <CardContent>
@@ -455,10 +473,10 @@
 
       <!-- Shield Tab -->
       <TabsContent value="shield" class="space-y-8 mt-8">
-        <div class="grid md:grid-cols-2 gap-6">
-          <Card>
+        <div class="grid sm:grid-cols-2 gap-4 sm:gap-6">
+          <Card class="border-l-4 border-l-rose-400">
             <CardHeader>
-              <Bell class="text-primary mb-2" size={24} />
+              <Bell class="text-rose-600 mb-2" size={24} />
               <CardTitle>Emergency Alerts</CardTitle>
             </CardHeader>
             <CardContent>
@@ -469,9 +487,9 @@
             </CardContent>
           </Card>
 
-          <Card>
+          <Card class="border-l-4 border-l-rose-400">
             <CardHeader>
-              <Footprints class="text-primary mb-2" size={24} />
+              <Footprints class="text-rose-600 mb-2" size={24} />
               <CardTitle>Safe-Walk</CardTitle>
             </CardHeader>
             <CardContent>
@@ -490,146 +508,36 @@
 <!-- ════════════════════════════════════════════════════════════════════════════════
      CTA SECTION
      ════════════════════════════════════════════════════════════════════════════════ -->
-<section class="py-20 px-4">
-  <div class="max-w-3xl mx-auto text-center space-y-8">
-    <h2 class="text-4xl md:text-5xl font-bold">Ready to transform your university?</h2>
-    <p class="text-lg text-muted-foreground">
-      Join thousands of students who've stopped settling for less. Your university never gave you
-      Sabify. But now you can have it.
-    </p>
-    <Button size="lg" class="gap-2 h-12 px-8" onclick={() => goto('/signup')}>
-      Start for free <ArrowRight size={18} />
-    </Button>
-  </div>
+<section class="py-16 sm:py-20 px-4 sm:px-6 md:px-12 overflow-hidden">
+ <UniversityCTA />
 </section>
 
-<!-- ════════════════════════════════════════════════════════════════════════════════
-     NEWSLETTER
-     ════════════════════════════════════════════════════════════════════════════════ -->
-<section class="py-20 px-4 bg-muted/30">
-  <div class="max-w-2xl mx-auto">
-    <Card class="border-2">
-      <CardHeader class="text-center space-y-2">
-        <Mail class="mx-auto text-primary" size={32} />
-        <CardTitle class="text-2xl">Stay in the loop</CardTitle>
-        <CardDescription>
-          Get updates on new features, universities launching, and campus stories from across
-          Africa.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onsubmit={handleSubscribe} class="space-y-3">
-          <div class="flex gap-2">
-            <Input
-              type="email"
-              placeholder="your@university.edu"
-              bind:value={email}
-              disabled={isSubscribed}
-              required
-            />
-            <Button type="submit" disabled={isSubscribed}>
-              {isSubscribed ? 'Subscribed!' : 'Subscribe'}
-            </Button>
+<!-- Footer -->
+<footer class="border-t border-border bg-card overflow-hidden">
+  <div class="px-4 sm:px-6 md:px-12 lg:px-20 py-8 sm:py-12 max-w-7xl mx-auto">
+    <div class="flex flex-col items-center gap-6 sm:gap-8 md:flex-row md:items-end md:justify-between">
+      <div class="text-center md:text-left">
+        <div class="mb-3 flex items-center justify-center gap-3 md:justify-start">
+          <div class="flex size-8 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground">
+            S
           </div>
-          {#if isSubscribed}
-            <p class="text-sm text-green-600 flex items-center gap-2">
-              <Check size={16} /> Thanks for subscribing!
-            </p>
-          {/if}
-        </form>
-      </CardContent>
-    </Card>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════════════════════════════════════════
-     FAQ
-     ════════════════════════════════════════════════════════════════════════════════ -->
-<section class="py-20 px-4">
-  <div class="max-w-3xl mx-auto space-y-12">
-    <!-- Header -->
-    <div class="text-center space-y-4">
-      <Badge variant="secondary" class="mx-auto">Questions?</Badge>
-      <h2 class="text-4xl md:text-5xl font-bold">Frequently asked</h2>
-    </div>
-
-    <!-- FAQ Accordion -->
-    <Accordion type="single" collapsible class="w-full">
-      {#each faqs as faq, idx (idx)}
-        <AccordionItem value={`item-${idx}`}>
-          <AccordionTrigger class="hover:no-underline text-left">
-            {faq.q}
-          </AccordionTrigger>
-          <AccordionContent class="text-base leading-relaxed">
-            {faq.a}
-          </AccordionContent>
-        </AccordionItem>
-      {/each}
-    </Accordion>
-
-    <!-- More Help -->
-    <div class="text-center pt-8">
-      <p class="text-muted-foreground mb-4">Still have questions?</p>
-      <Button variant="outline" class="gap-2">
-        Contact our team <ArrowRight size={16} />
-      </Button>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════════════════════════════════════════
-     FOOTER
-     ════════════════════════════════════════════════════════════════════════════════ -->
-<footer class="border-t bg-muted/30 py-12 px-4">
-  <div class="max-w-6xl mx-auto">
-    <div class="grid md:grid-cols-4 gap-8 mb-8">
-      <!-- Brand -->
-      <div class="space-y-2">
-        <h3 class="font-bold text-lg">Sabify</h3>
-        <p class="text-sm text-muted-foreground italic">Everything Campus. One App.</p>
+          <div class="font-semibold">Sabify</div>
+        </div>
+        <p class="text-sm text-muted-foreground">
+          Everything Campus. One App.
+        </p>
       </div>
 
-      <!-- Product -->
-      <div class="space-y-3">
-        <h4 class="font-semibold text-sm">Product</h4>
-        <ul class="space-y-2 text-sm">
-          <li><a href="#" class="text-muted-foreground hover:text-primary transition">Features</a></li>
-          <li><a href="#" class="text-muted-foreground hover:text-primary transition">Pricing</a></li>
-          <li><a href="#" class="text-muted-foreground hover:text-primary transition">For Universities</a></li>
-        </ul>
-      </div>
-
-      <!-- Company -->
-      <div class="space-y-3">
-        <h4 class="font-semibold text-sm">Company</h4>
-        <ul class="space-y-2 text-sm">
-          <li><a href="#" class="text-muted-foreground hover:text-primary transition">About</a></li>
-          <li><a href="#" class="text-muted-foreground hover:text-primary transition">Blog</a></li>
-          <li><a href="#" class="text-muted-foreground hover:text-primary transition">Contact</a></li>
-        </ul>
-      </div>
-
-      <!-- Legal -->
-      <div class="space-y-3">
-        <h4 class="font-semibold text-sm">Legal</h4>
-        <ul class="space-y-2 text-sm">
-          <li><a href="#" class="text-muted-foreground hover:text-primary transition">Privacy</a></li>
-          <li><a href="#" class="text-muted-foreground hover:text-primary transition">Terms</a></li>
-          <li><a href="#" class="text-muted-foreground hover:text-primary transition">Cookie policy</a></li>
-        </ul>
+      <div class="flex items-center gap-3 text-sm text-muted-foreground">
+        <span>Powered by</span>
+        <span class="font-medium text-foreground">I3Hub</span>
       </div>
     </div>
 
-    <Separator class="my-8" />
-
-    <!-- Bottom -->
-    <div class="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-      <p>&copy; 2025 Sabify. All rights reserved.</p>
-      <div class="flex gap-6">
-        <a href="#" class="hover:text-primary transition">Twitter</a>
-        <a href="#" class="hover:text-primary transition">LinkedIn</a>
-        <a href="#" class="hover:text-primary transition">Instagram</a>
-      </div>
+    <div class="mt-8 sm:mt-12 border-t border-border pt-6 sm:pt-8 text-center text-xs text-muted-foreground/70">
+      © {new Date().getFullYear()} Sabify. All rights reserved.
     </div>
   </div>
 </footer>
+
+</div>

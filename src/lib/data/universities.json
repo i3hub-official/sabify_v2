@@ -30,7 +30,7 @@
 		"id": "uni_04m6a0n5s2t7u8w9x1l",
 		"name": "Adamawa State University",
 		"acronym": "ADSU",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://adsu.edu.ng/",
 		"logo": "https://adsu.edu.ng/wp-content/uploads/2020/11/ADSU-LOGO.png",
 		"active": false
@@ -47,8 +47,8 @@
 	{
 		"id": "uni_06o8c2p7u4v9w0y1z3n",
 		"name": "Adeleke University",
-		"acronym": "Adeleke University",
-		"motto": "Non Found",
+		"acronym": "ADU",
+		"motto": "None Found",
 		"web": "https://adelekeuniversity.edu.ng/",
 		"logo": "https://adelekeuniversity.edu.ng/wp-content/uploads/2016/10/logos.png",
 		"active": false
@@ -75,7 +75,7 @@
 		"id": "uni_09r1f5s0x7y2z3b4c6q",
 		"name": "African University of Science and Technology",
 		"acronym": "AUST",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://aust.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/13967.png",
 		"active": false
@@ -84,7 +84,7 @@
 		"id": "uni_10s2g6t1y8z3a4c5d7r",
 		"name": "Ahmadu Bello University",
 		"acronym": "ABU",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://abu.edu.ng/",
 		"logo": "https://abu.edu.ng/images/logo.png",
 		"active": false
@@ -129,7 +129,7 @@
 		"id": "uni_15x7l1y6d3e8f9g0h2w",
 		"name": "Al-Qalam University, Katsina",
 		"acronym": "AUK",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "http://www.auk.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/10748.png",
 		"active": false
@@ -165,7 +165,7 @@
 		"id": "uni_19b1p5c0h7i2j3k4l6a",
 		"name": "Arthur Jarvis University",
 		"acronym": "AJU",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "http://arthurjarvisuniversity.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/17752.png",
 		"active": false
@@ -174,7 +174,7 @@
 		"id": "uni_20c2q6d1i8j3k4l5m7b",
 		"name": "Atiba University",
 		"acronym": "Atiba University",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://www.atibauniversity.edu.ng/",
 		"logo": "https://www.atibauniversity.edu.ng/images/big_logo_sm.png",
 		"active": false
@@ -255,7 +255,7 @@
 		"id": "uni_29l1z5m0r7s2t3u4v6k",
 		"name": "Borno State University",
 		"acronym": "BOSU",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://bosu.edu.ng/",
 		"logo": "https://bosu.edu.ng/wp-content/uploads/2020/09/HEADER.png",
 		"active": false
@@ -264,7 +264,7 @@
 		"id": "uni_30m2a6n1s8t3u4v5w7l",
 		"name": "Bowen University",
 		"acronym": "BUI",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://bowen.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/10777.png",
 		"active": false
@@ -291,7 +291,7 @@
 		"id": "uni_33p5d9q4v1w6x7y8z0o",
 		"name": "Chrisland University",
 		"acronym": "Chrisland University",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://www.chrislanduniversity.edu.ng/",
 		"logo": "https://www.chrislanduniversity.edu.ng/static/img/logo/cu-logo.png",
 		"active": false
@@ -300,7 +300,7 @@
 		"id": "uni_34q6e0r5w2x7y8z9a1p",
 		"name": "Christopher University",
 		"acronym": "Christopher University",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "http://www.christopheruniversity.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/18424.png",
 		"active": false
@@ -327,7 +327,7 @@
 		"id": "uni_37t9h3u8z5a0b1c2d4s",
 		"name": "Coal City University",
 		"acronym": "CCU",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://ccu.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/17746.png",
 		"active": false
@@ -390,7 +390,7 @@
 		"id": "uni_44a6o0b5g2h7i8j9k1z",
 		"name": "Dominican University, Ibadan",
 		"acronym": "DU",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://dui.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/17748.png",
 		"active": false
@@ -399,7 +399,7 @@
 		"id": "uni_45b7p1c6h3i8j9k0l2a",
 		"name": "Eastern Palm University",
 		"acronym": "EPU",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://www.epu.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/17743.png",
 		"active": false
@@ -408,7 +408,7 @@
 		"id": "uni_46c8q2d7i4j9k0l1m3b",
 		"name": "Edo University",
 		"acronym": "EUI",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://www.edouniversity.edu.ng/",
 		"logo": "https://www.edouniversity.edu.ng/uploads/settings/logo.png",
 		"active": false
@@ -417,7 +417,7 @@
 		"id": "uni_47d9r3e8j5k0l1m2n4c",
 		"name": "Ebonyi State University",
 		"acronym": "EBSU",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "http://ebsu.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/10736.png",
 		"active": false
@@ -444,7 +444,7 @@
 		"id": "uni_50g2u6h1m8n3o4p5q7f",
 		"name": "Eko University of Medical and Health Sciences",
 		"acronym": "EKOUNIVMED",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://ekounimed.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/17751.png",
 		"active": false
@@ -462,7 +462,7 @@
 		"id": "uni_52i4w8j3o0p5q6r7s9h",
 		"name": "Enugu State University of Science and Technology",
 		"acronym": "ESUT",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://www.esut.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/10740.png",
 		"active": true
@@ -471,7 +471,7 @@
 		"id": "uni_53j5x9k4p1q6r7s8t0i",
 		"name": "Evangel University, Akaeze",
 		"acronym": "EUA",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://evangeluniversity.edu.ng/",
 		"logo": "https://evangeluniversity.edu.ng/images/eua-logo.png",
 		"active": false
@@ -525,7 +525,7 @@
 		"id": "uni_59p1d5q0v7w2x3y4z6o",
 		"name": "Federal University, Birnin Kebbi",
 		"acronym": "FUBK",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "http://www.fubk.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/17735.png",
 		"active": false
@@ -534,7 +534,7 @@
 		"id": "uni_60q2e6r1w8x3y4z5a7p",
 		"name": "Federal University, Dutse",
 		"acronym": "FUD",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://fud.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/13952.png",
 		"active": false
@@ -543,7 +543,7 @@
 		"id": "uni_61r3f7s2x9y4z5a6b8q",
 		"name": "Federal University, Dustin-Ma",
 		"acronym": "FUDMA",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://www.fudutsinma.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/13953.png",
 		"active": false
@@ -552,7 +552,7 @@
 		"id": "uni_62s4g8t3y0z5a6b7c9r",
 		"name": "Federal University, Gashua",
 		"acronym": "FUG",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "http://fugashua.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/17734.png",
 		"active": false
@@ -579,7 +579,7 @@
 		"id": "uni_65v7j1w6b3c8d9e0f2u",
 		"name": "Federal University, Lafia",
 		"acronym": "Federal University, Lafia",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "http://fukashere.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/13955.png",
 		"active": false
@@ -669,7 +669,7 @@
 		"id": "uni_75f7t1g6l3m8n9o0p2e",
 		"name": "Hallmark University, Ijebu-Itele",
 		"acronym": "HU",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://hallmarkuniversity.edu.ng/",
 		"logo": "https://hallmarkuniversity.edu.ng/images/logo3-1.png",
 		"active": false
@@ -705,7 +705,7 @@
 		"id": "uni_79j1x5k0p7q2r3s4t6i",
 		"name": "Ignatius Ajuru University of Education",
 		"acronym": "IAUE",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "https://iauoe.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/17737.png",
 		"active": false
@@ -741,7 +741,7 @@
 		"id": "uni_83n5b9o4t1u6v7w8x0m",
 		"name": "Kano University of Science and Technology",
 		"acronym": "KUST",
-		"motto": "Non Found",
+		"motto": "None Found",
 		"web": "http://kustwudil.edu.ng/",
 		"logo": "https://www.4icu.org/i/logos-seals/10747.png",
 		"active": false

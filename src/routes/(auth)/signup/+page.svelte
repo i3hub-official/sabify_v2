@@ -13,7 +13,7 @@
 		AlertCircle, Check, Sparkles, Briefcase, School,
 		Phone, BookOpen, Zap, QrCode, Camera, Upload,
 		RefreshCw, ShieldCheck, X, ChevronLeft,
-		Building2, UserPlus
+		Building2, UserPlus, Home
 	} from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -414,11 +414,32 @@
 	}}
 />
 
-<div class="min-h-screen flex flex-col lg:flex-row">
+<!-- Header Navigation -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
+	<div class="px-6 md:px-12 h-16 flex items-center justify-between">
+		<!-- Logo -->
+		<div class="inline-flex items-center gap-3">
+			<span class="font-semibold text-foreground">Sabify</span>
+		</div>
+
+		<!-- Home Button -->
+		<Button
+			variant="ghost"
+			size="sm"
+			onclick={() => goto('/')}
+			class="gap-2"
+		>
+			<Home size={16} />
+			<span class="hidden sm:inline">Home</span>
+		</Button>
+	</div>
+</header>
+
+<div class="min-h-screen flex flex-col lg:flex-row pt-16">
 	<!-- Left side - Hero -->
-	<div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground flex-col justify-between p-12 relative overflow-hidden">
-		<div class="absolute top-20 right-20 w-64 h-64 rounded-full bg-primary-foreground/5 blur-3xl" />
-		<div class="absolute bottom-20 left-20 w-48 h-48 rounded-full bg-primary-foreground/5 blur-2xl" />
+	<div class="hidden lg:flex lg:w-1/2 bg-foreground text-primary-foreground flex-col justify-between p-12 relative overflow-hidden">
+		<div class="absolute top-20 right-20 w-64 h-64 rounded-full bg-primary-foreground/5 blur-3xl"></div>
+		<div class="absolute bottom-20 left-20 w-48 h-48 rounded-full bg-primary-foreground/5 blur-2xl"></div>
 
 		<div>
 			<div class="inline-flex items-center gap-3 mb-12 relative z-10">
@@ -491,9 +512,9 @@
 				<CardContent class="space-y-5">
 					<!-- Stepper -->
 					<div class="flex items-center gap-1.5">
-						<div class="h-1.5 rounded-full flex-1 {currentStep >= 1 ? 'bg-primary' : 'bg-muted'} transition-colors" />
-						<div class="h-1.5 rounded-full flex-1 {currentStep >= 2 ? 'bg-primary' : 'bg-muted'} transition-colors" />
-						<div class="h-1.5 rounded-full flex-1 {currentStep >= 3 ? 'bg-primary' : 'bg-muted'} transition-colors" />
+						<div class="h-1.5 rounded-full flex-1 {currentStep >= 1 ? 'bg-primary' : 'bg-muted'} transition-colors"></div>
+						<div class="h-1.5 rounded-full flex-1 {currentStep >= 2 ? 'bg-primary' : 'bg-muted'} transition-colors"></div>
+						<div class="h-1.5 rounded-full flex-1 {currentStep >= 3 ? 'bg-primary' : 'bg-muted'} transition-colors"></div>
 					</div>
 					<div class="flex justify-between text-xs text-muted-foreground -mt-1">
 						<span class="{currentStep >= 1 ? 'text-primary font-medium' : ''}">University</span>
@@ -525,7 +546,7 @@
 
 							<!-- University Search -->
 							<div class="space-y-1.5">
-								<label class="text-sm font-medium">University <span class="text-destructive">*</span></label>
+								<label class="text-sm font-medium mt-4 block">University <span class="text-destructive">*</span></label>
 								<div class="university-search relative">
 									<div class="relative">
 										<School class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
