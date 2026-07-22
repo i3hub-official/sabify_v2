@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev --host",
-		"build": "vite build",
+		"build": "prisma generate && prisma migrate deploy && vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"reset": "prisma migrate reset --force && prisma db push && prisma generate",
