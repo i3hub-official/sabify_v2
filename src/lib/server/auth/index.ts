@@ -90,7 +90,7 @@ export async function createUserSession(
 export async function getUserByToken(token: string) {
   const prisma = await getPrismaClient()
   const session = await prisma.userSession.findUnique({
-    where: { id: token }, // Assuming token is stored as id or there's a unique constraint
+    where: { token }, // Query by token field (unique)
     include: {
       user: {
         include: {
@@ -103,8 +103,9 @@ export async function getUserByToken(token: string) {
   if (!session || session.expiresAt < new Date()) return null
   if (session.user.isSuspended) return null
 
+  // Update last activity time (fire and forget)
   prisma.userSession
-    .update({ where: { id: session.id }, data: { updatedAt: new Date() } })
+    .update({ where: { id: session.id }, data: { createdAt: new Date() } })
     .catch(() => {})
 
   return { user: session.user, session }
@@ -177,4 +178,80 @@ export async function findUserById(userId: string) {
     where: { id: userId },
     include: { adminProfile: true }
   })
+}
+
+// ─── SvelteKit integration ────────────────────────────────────────────────────
+
+/**
+ * High-level session creation for SvelteKit events.
+ * Creates UserSession in DB and sets the session cookie.
+ * 
+ * Used in signup and login flows to establish a session with:
+ * - UserSession database record (token, refreshToken, expiry)
+ * - HTTP-only session cookie
+ * - Populated locals (event.locals.user, event.locals.session)
+ * 
+ * Usage in signup action:
+ * ```ts
+ * await createSession(event, {
+ *   id: user.id,
+ *   email: rawEmail,
+ *   firstName: rawFirstName,
+ *   otherName: null,
+ *   surname: rawSurname,
+ *   role: 'STUDENT',
+ *   isVerified: false,
+ *   emailVerified: false,
+ *   nameArranged: false,
+ *   universityId: user.universityId,
+ *   departmentId: user.departmentId,
+ *   matricNumber: matricNumber || '',
+ *   isActive: true,
+ * })
+ * ```
+ */
+export async function createSession(
+  event: any, // SvelteKit RequestEvent
+  userData: {
+    id: string
+    email: string
+    firstName: string
+    otherName?: string | null
+    surname: string
+    role: string
+    isVerified: boolean
+    nameArranged: boolean
+    universityId: string | null
+    departmentId: number | null
+    matricNumber?: string
+    isActive: boolean
+    emailVerified: boolean
+    [key: string]: any
+  },
+) {
+  const { token, refreshToken } = await createUserSession(userData.id, {
+    ipAddress: event.request.headers.get('x-forwarded-for') || 
+               event.request.headers.get('cf-connecting-ip') ||
+               event.getClientAddress?.() ||
+               undefined,
+    userAgent: event.request.headers.get('user-agent') || undefined,
+  })
+
+  // Set HTTP-only cookie
+  event.cookies.set(USER_COOKIE, token, {
+    ...cookieOptions,
+    secure: process.env.NODE_ENV === 'production',
+  })
+
+  // Store in locals for immediate use
+  event.locals.user = userData as any
+  event.locals.session = {
+    id: token, // Use token as session ID for now
+    userId: userData.id,
+    token,
+    refreshToken,
+    expiresAt: new Date(Date.now() + COOKIE_MAX_AGE * 1000),
+  } as any
+
+  return { token, refreshToken }
 }
