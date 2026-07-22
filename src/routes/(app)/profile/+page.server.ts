@@ -1,5 +1,5 @@
 // src/routes/profile/+page.server.ts
-import { requireAuth, requireVerified } from '$lib/server/auth/guards'
+import { requireAuth, requireVerified } from '$lib/server/auth/guards.js'
 
 export const actions = {
   updateProfile: async ({ locals, request }) => {
