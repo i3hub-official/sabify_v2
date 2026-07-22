@@ -25,49 +25,58 @@
   import UniversityCTA from '$lib/components/UniversityCTA.svelte';
 
   // ── Loading state ─────────────────────────────────────────────────
-  let isLoading = $state(true);
+  let isLoading = $state(false); // Start FALSE — only show if first visit
   let loadProgress = $state(0);
   let fontsReady = $state(false);
 
   onMount(() => {
     theme.init();
 
-    // Simulate progressive loading
-    const steps = [
-      { progress: 25, delay: 100 },   // HTML parsed
-      { progress: 50, delay: 250 },   // CSS applied
-      { progress: 75, delay: 400 },   // Fonts loading
-      { progress: 100, delay: 600 },  // Everything ready
-    ];
+    // Check if this is the first visit in this browser session
+    const hasVisited = sessionStorage.getItem('sabify-loader-seen');
 
-    let stepIndex = 0;
-    const runStep = () => {
-      if (stepIndex >= steps.length) {
-        // Small buffer after 100% before hiding loader
+    if (!hasVisited) {
+      // First visit — show loader
+      isLoading = true;
+      sessionStorage.setItem('sabify-loader-seen', 'true');
+
+      // Simulate progressive loading
+      const steps = [
+        { progress: 25, delay: 100 },
+        { progress: 50, delay: 250 },
+        { progress: 75, delay: 400 },
+        { progress: 100, delay: 600 },
+      ];
+
+      let stepIndex = 0;
+      const runStep = () => {
+        if (stepIndex >= steps.length) {
+          setTimeout(() => {
+            isLoading = false;
+          }, 300);
+          return;
+        }
+        const step = steps[stepIndex];
         setTimeout(() => {
-          isLoading = false;
-        }, 300);
-        return;
-      }
-      const step = steps[stepIndex];
-      setTimeout(() => {
-        loadProgress = step.progress;
-        stepIndex++;
-        runStep();
-      }, step.delay);
-    };
+          loadProgress = step.progress;
+          stepIndex++;
+          runStep();
+        }, step.delay);
+      };
 
-    runStep();
+      runStep();
 
-    // Also wait for fonts if supported
-    if ('fonts' in document) {
-      document.fonts.ready.then(() => {
+      // Also wait for fonts if supported
+      if ('fonts' in document) {
+        document.fonts.ready.then(() => {
+          fontsReady = true;
+          loadProgress = 100;
+        });
+      } else {
         fontsReady = true;
-        loadProgress = 100;
-      });
-    } else {
-      fontsReady = true;
+      }
     }
+    // If hasVisited is true, isLoading stays false — no loader shown
   });
 
   // Navigation handler
