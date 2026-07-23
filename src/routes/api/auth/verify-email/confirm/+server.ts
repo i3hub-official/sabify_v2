@@ -1,0 +1,68 @@
+// src/routes/api/auth/verify-email/confirm/+server.ts
+// Confirm email verification — verify OTP code and activate email
+
+import { json as json2 } from '@sveltejs/kit'
+import type { RequestHandler as RequestHandler2 } from '@sveltejs/kit'
+import { verifyVerificationCode, consumeVerificationCode } from '$lib/server/auth/verification'
+
+export const POST: RequestHandler2 = async ({ request, locals }) => {
+  try {
+    if (!locals.user) {
+      return json2(
+        { error: 'You must be logged in to verify your email.' },
+        { status: 401 }
+      )
+    }
+
+    const body = await request.json()
+    const { code } = body
+
+    if (!code) {
+      return json2(
+        { error: 'Verification code is required.' },
+        { status: 400 }
+      )
+    }
+
+    // ── Verify code ──────────────────────────────────────────────────────
+    const codeCheck = await verifyVerificationCode(code)
+    if (!codeCheck.valid || !codeCheck.userId) {
+      return json2(
+        { error: codeCheck.error || 'Invalid or expired verification code.' },
+        { status: 400 }
+      )
+    }
+
+    // Verify it's the current user's code
+    if (codeCheck.userId !== locals.user.id) {
+      return json2(
+        { error: 'This verification code is for a different account.' },
+        { status: 400 }
+      )
+    }
+
+    // ── Consume code & activate email ────────────────────────────────────
+    try {
+      await consumeVerificationCode(code)
+
+      return json2({
+        success: true,
+        message: 'Your email has been verified successfully.',
+      })
+    } catch (error) {
+      console.error('[verify-email/confirm] Consumption error:', error)
+      return json2(
+        { error: 'Unable to verify email. Please try again.' },
+        { status: 500 }
+      )
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    console.error('[verify-email/confirm] Error:', message)
+
+    return json2(
+      { error: 'An error occurred. Please try again.' },
+      { status: 500 }
+    )
+  }
+}
