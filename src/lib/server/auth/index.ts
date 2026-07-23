@@ -75,6 +75,7 @@ export async function createUserSession(
 
   const session = await prisma.userSession.create({
     data: {
+      // id will be auto-generated with @default(cuid())
       userId,
       token,
       refreshToken,
@@ -90,7 +91,7 @@ export async function createUserSession(
 export async function getUserByToken(token: string) {
   const prisma = await getPrismaClient()
   const session = await prisma.userSession.findUnique({
-    where: { token }, // Query by token field (unique)
+    where: { token }, // Now works because token is @unique
     include: {
       user: {
         include: {
@@ -105,7 +106,7 @@ export async function getUserByToken(token: string) {
 
   // Update last activity time (fire and forget)
   prisma.userSession
-    .update({ where: { id: session.id }, data: { createdAt: new Date() } })
+    .update({ where: { id: session.id }, data: { updatedAt: new Date() } })
     .catch(() => {})
 
   return { user: session.user, session }
@@ -113,8 +114,8 @@ export async function getUserByToken(token: string) {
 
 export async function refreshUserSession(refreshToken: string) {
   const prisma = await getPrismaClient()
-  const session = await prisma.userSession.findFirst({
-    where: { refreshToken },
+  const session = await prisma.userSession.findUnique({
+    where: { refreshToken }, // Now works because refreshToken is @unique
     include: { user: true },
   })
 
@@ -140,7 +141,7 @@ export async function refreshUserSession(refreshToken: string) {
 
 export async function invalidateUserSession(token: string) {
   const prisma = await getPrismaClient()
-  await prisma.userSession.deleteMany({ where: { token } })
+  await prisma.userSession.delete({ where: { token } }) // Now works with unique
 }
 
 export async function invalidateAllUserSessions(userId: string) {
@@ -211,7 +212,7 @@ export async function findUserById(userId: string) {
  * ```
  */
 export async function createSession(
-  event: any, // SvelteKit RequestEvent
+  event: any,
   userData: {
     id: string
     email: string
@@ -229,7 +230,7 @@ export async function createSession(
     [key: string]: any
   },
 ) {
-  const { token, refreshToken } = await createUserSession(userData.id, {
+  const { token, refreshToken, session } = await createUserSession(userData.id, {
     ipAddress: event.request.headers.get('x-forwarded-for') || 
                event.request.headers.get('cf-connecting-ip') ||
                event.getClientAddress?.() ||
@@ -246,12 +247,12 @@ export async function createSession(
   // Store in locals for immediate use
   event.locals.user = userData as any
   event.locals.session = {
-    id: token, // Use token as session ID for now
+    id: session.id, // Use the actual session ID from the database
     userId: userData.id,
     token,
     refreshToken,
-    expiresAt: new Date(Date.now() + COOKIE_MAX_AGE * 1000),
+    expiresAt: session.expiresAt,
   } as any
 
-  return { token, refreshToken }
+  return { token, refreshToken, session }
 }

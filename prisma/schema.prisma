@@ -67,6 +67,22 @@ model User {
   contributorBadge  Boolean @default(false)
   contributorPoints Int     @default(0)
 
+  // ── Registration & Receipt Records ──────────────────
+  receiptNo     String?  @unique // Student's receipt number
+  receiptRef    String?  @unique // Payment reference
+  receiptSource String?  // Where the receipt came from (MOUAU, etc.)
+  
+  // ── Registration Audit (Security) ──────────────────
+  registeredAt  DateTime @default(now())
+  registeredIP  String?  // IP address at registration
+  registeredVia String?  // "web" | "mobile" | "admin"
+  userAgent     String?  // Browser/device info
+  
+  // ── Receipt Verification ───────────────────────────
+  receiptVerified   Boolean  @default(false)
+  receiptVerifiedAt DateTime?
+  receiptVerifiedBy String?   // Admin who verified
+
   // ── Relations ──────────────────────────────────────
   sessions          UserSession[]
   adminProfile      AdminProfile?
@@ -107,17 +123,23 @@ model User {
   @@index([isSuspended])
   @@index([role])
   @@index([deletedAt])
+  @@index([receiptNo])
+  @@index([receiptRef])
+  @@index([registeredAt])
   @@map("user")
 }
 
 model UserSession {
-  id        String   @id // set via nanoid() in app code
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid()) // ← ADD THIS
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token        String   @unique // ← ADD @unique
+  refreshToken String   @unique // ← ADD @unique
+  expiresAt    DateTime
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt // ← ADD THIS
 
   @@index([userId])
   @@index([expiresAt])
