@@ -3,7 +3,7 @@
 // frequently by load balancers/uptime monitors, so no heavy queries here.
 
 import { getPrismaClient } from '$lib/server/db/index.js'
-import { checkAllServices } from '$lib/services/index.js'
+import { checkAllServices } from '$lib/services/guards.js'
 import { pingCache } from '$lib/cache/client.js'
 
 export type CheckStatus = 'up' | 'down' | 'degraded'
