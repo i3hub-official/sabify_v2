@@ -24,7 +24,7 @@
 		CheckCircle,
 		Shield,
 		Phone,
-		Walk,
+		PersonStanding,
 		Bell,
 		User,
 		Building,
@@ -407,7 +407,7 @@
 							<p class="text-xs text-muted-foreground">Emergency contacts</p>
 						</div>
 						<div class="rounded-lg border border-border p-3 text-center">
-							<Walk class="mx-auto mb-2 size-5 text-muted-foreground" />
+							<PersonStanding class="mx-auto mb-2 size-5 text-muted-foreground" />
 							<p class="text-2xl font-bold">
 								{metrics.safety.safeWalkActive ? 'Active' : 'Inactive'}
 							</p>
