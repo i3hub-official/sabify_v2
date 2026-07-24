@@ -3,10 +3,6 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import {
-		AcademicMetrics,
-		FinancialMetrics,
-		EngagementMetrics,
-		SafetyMetrics,
 		type StudentDashboardMetrics
 	} from '$lib/services/student-dashboard.service.js';
 
