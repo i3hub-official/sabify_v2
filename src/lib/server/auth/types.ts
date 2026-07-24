@@ -1,28 +1,34 @@
 // src/lib/server/auth/types.ts
 // Shape of `event.locals.user`, hydrated in hooks.server.ts
-import type { User, AdminProfile, Role } from '@prisma/client'
+import type { User, AdminProfile, Role } from '@prisma/client';
 
 /**
  * Authenticated user — subset of User model for safe session use.
  * Populated in hooks.server.ts via getUserByToken().
  */
 export type AuthenticatedUser = Omit<User, 'passwordHash' | 'deletionReason' | 'suspendedReason'> & {
-  adminProfile?: AdminProfile | null
+  adminProfile?: AdminProfile | null;
+  // Additional fields added by hooks
+  role?: string;
+  universityId?: string | null;
+  collegeId?: number | null;
+  departmentId?: number | null;
 }
 
 /**
  * Session attached to locals.session
  */
 export interface AuthSession {
-  id: string
-  userId: string
-  token: string
-  refreshToken: string
-  expiresAt: Date
-  ipAddress?: string | null
-  userAgent?: string | null
-  createdAt: Date
-  updatedAt?: Date
+  id: string;
+  userId: string;
+  token: string;
+  refreshToken: string;
+  expiresAt: Date;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  createdAt: Date;
+  updatedAt?: Date;
+  user?: AuthenticatedUser;
 }
 
 /**
@@ -67,105 +73,96 @@ export function isScopedToDepartment(user: AuthenticatedUser, departmentId: numb
   return user?.adminProfile?.departmentId === departmentId || user?.adminProfile?.departmentId === null
 }
 
-
-/**
- * Locals context (populated by hooks.server.ts)
- */
-export interface Locals {
-  user: User | null
-  session: AuthSession | null
-}
- 
 /**
  * Login request payload
  */
 export interface LoginRequest {
-  email: string
-  password: string
-  rememberMe?: boolean
+  email: string;
+  password: string;
+  rememberMe?: boolean;
 }
- 
+
 /**
  * Login response
  */
 export interface LoginResponse {
-  success: boolean
-  message?: string
-  error?: string
-  redirect?: string
+  success: boolean;
+  message?: string;
+  error?: string;
+  redirect?: string;
 }
- 
+
 /**
  * Signup request payload
  */
 export interface SignupRequest {
-  email: string
-  password: string
-  firstName: string
-  surname: string
-  university: string
+  email: string;
+  password: string;
+  firstName: string;
+  surname: string;
+  university: string;
 }
- 
+
 /**
  * Password reset request
  */
 export interface PasswordResetRequest {
-  email: string
+  email: string;
 }
- 
+
 /**
  * Password reset confirm
  */
 export interface PasswordResetConfirm {
-  code: string
-  newPassword: string
-  confirmPassword: string
+  code: string;
+  newPassword: string;
+  confirmPassword: string;
 }
- 
+
 /**
  * Email verification confirm
  */
 export interface EmailVerificationConfirm {
-  code: string
+  code: string;
 }
- 
+
 /**
  * OTP verification result
  */
 export interface OtpVerificationResult {
-  valid: boolean
-  error?: string
-  userId?: string
+  valid: boolean;
+  error?: string;
+  userId?: string;
 }
- 
+
 /**
  * Token verification result
  */
 export interface TokenVerificationResult {
-  valid: boolean
-  error?: string
-  userId?: string
+  valid: boolean;
+  error?: string;
+  userId?: string;
 }
- 
+
 /**
  * Password strength check result
  */
 export interface PasswordStrengthResult {
-  strong: boolean
-  score: number // 0-5
-  feedback: string
-  errors: string[]
+  strong: boolean;
+  score: number; // 0-5
+  feedback: string;
+  errors: string[];
 }
- 
+
 /**
  * Session creation options
  */
 export interface SessionOptions {
-  rememberMe?: boolean
-  ipAddress?: string
-  userAgent?: string
+  rememberMe?: boolean;
+  ipAddress?: string;
+  userAgent?: string;
 }
- 
+
 /**
  * Admin role hierarchy
  */
@@ -176,10 +173,9 @@ export type AdminRole =
   | 'UNIVERSITY_ADMIN'
   | 'COLLEGE_ADMIN'
   | 'DEPT_ADMIN'
-  | 'COURSE_REP'
- 
+  | 'COURSE_REP';
+
 /**
  * User role
  */
-export type UserRole = 'STUDENT' | 'STAFF' | 'CONTRIBUTOR' | 'ADMIN'
- 
+export type UserRole = 'STUDENT' | 'STAFF' | 'CONTRIBUTOR' | 'ADMIN';

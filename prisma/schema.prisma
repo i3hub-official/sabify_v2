@@ -373,8 +373,8 @@ model Registration {
   registeredAt DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
 
-  student Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  course  User            @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  user   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   session AcademicSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, courseId, sessionId])

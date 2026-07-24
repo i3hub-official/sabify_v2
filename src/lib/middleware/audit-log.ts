@@ -84,11 +84,40 @@ const MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
 const SENSITIVE_PATH_PREFIXES = ['/api/payments', '/signin', '/signup', '/reset-password']
 
 function getClientIp(event: RequestEvent): string {
-  return (
-    event.request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    event.request.headers.get('cf-connecting-ip') ||
-    event.getClientAddress()
-  )
+  // Try headers first (more reliable in proxied environments)
+  const forwarded = event.request.headers.get('x-forwarded-for')
+  if (forwarded) {
+    return forwarded.split(',')[0].trim()
+  }
+
+  const cfIp = event.request.headers.get('cf-connecting-ip')
+  if (cfIp) {
+    return cfIp
+  }
+
+  // Fallback to getClientAddress with proper error handling
+  try {
+    const clientAddress = event.getClientAddress()
+    
+    // In development, localhost addresses should use a consistent identifier
+    if (process.env.NODE_ENV === 'development') {
+      if (['::1', '127.0.0.1', '::ffff:127.0.0.1', 'localhost'].includes(clientAddress)) {
+        return 'dev-localhost'
+      }
+    }
+    
+    return clientAddress
+  } catch {
+    // If getClientAddress fails completely
+    if (process.env.NODE_ENV === 'development') {
+      return 'dev-fallback'
+    }
+    
+    // In production, use a combination of request metadata as fallback
+    const userAgent = event.request.headers.get('user-agent') || 'unknown'
+    const acceptLanguage = event.request.headers.get('accept-language') || 'unknown'
+    return `fallback:${userAgent.substring(0, 30)}:${acceptLanguage.substring(0, 10)}`
+  }
 }
 
 /**
@@ -102,13 +131,24 @@ function getClientIp(event: RequestEvent): string {
 export const auditLogMiddleware: Handle = async ({ event, resolve }) => {
   const response = await resolve(event)
 
+  // Only log mutating requests from authenticated users
   if (MUTATING_METHODS.has(event.request.method) && event.locals.user) {
     const isSensitive = SENSITIVE_PATH_PREFIXES.some((p) => event.url.pathname.startsWith(p))
-    logAuditEvent({
+    
+    // Get client IP safely
+  let ipAddress: string | null
+  try {
+    ipAddress = getClientIp(event)
+  } catch (err) {
+    console.error('[middleware/audit-log] Failed to get client IP:', err)
+    ipAddress = null
+  }
+  
+  logAuditEvent({
       actorId: event.locals.user.id,
       action: `${event.request.method} ${event.url.pathname}`,
       resource: isSensitive ? 'redacted' : event.url.pathname,
-      ipAddress: getClientIp(event),
+      ipAddress,
     }).catch((err) => console.error('[middleware/audit-log] failed to log:', err))
   }
 

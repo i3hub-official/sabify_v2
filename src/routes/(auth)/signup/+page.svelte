@@ -1,5 +1,4 @@
-<!-- src/routes/(auth)/signup/+page.svelte (REDESIGNED) -->
-
+<!-- src/routes/(auth)/signup/+page.svelte -->
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -13,7 +12,7 @@
 		AlertCircle, Check, Sparkles, Briefcase, School,
 		Phone, BookOpen, Zap, QrCode, Camera, Upload,
 		RefreshCw, ShieldCheck, X, ChevronLeft,
-		Building2, UserPlus, Home, Info
+		Building2, UserPlus, Home, Info, GraduationCap
 	} from '@lucide/svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -140,7 +139,6 @@
 	}
 
 	function onMatricInput() {
-		// Always clear receipt data when matric changes
 		if (receiptFetched || refNumber.trim()) {
 			receiptRaw = null;
 			receiptData = null;
@@ -154,7 +152,6 @@
 
 	function onRefInput() {
 		if (settingFromScan) return;
-		// If user tries to edit after verification, restart form
 		if (receiptFetched) {
 			receiptRaw = null;
 			receiptData = null;
@@ -166,8 +163,6 @@
 	}
 
 	function isValidRefFormat(text: string): boolean {
-		// Only allow alphanumeric, hyphens, underscores, colons, slashes, periods, and common special chars
-		// This allows typical receipt reference formats
 		const validRefPattern = /^[a-zA-Z0-9\-_.:\/\#]+$/;
 		return validRefPattern.test(text) && text.length > 0;
 	}
@@ -175,10 +170,8 @@
 	function extractRef(raw: string): string {
 		const param = receiptConfig?.refExtractParam ?? 'ref';
 		const extracted = extractRefFromUrl(raw, param);
-		
-		// Validate the extracted ref
 		if (!isValidRefFormat(extracted)) {
-			return ''; // Return empty if invalid
+			return '';
 		}
 		return extracted;
 	}
@@ -381,9 +374,9 @@
 				errorMessage = 'Please enter your email address.';
 				return;
 			}
-			currentStep = 3; // Preview step
+			currentStep = 3;
 		} else if (currentStep === 3) {
-			currentStep = 4; // Password step
+			currentStep = 4;
 		}
 	}
 
@@ -458,7 +451,6 @@
 	}}
 />
 
-<!-- Fixed scrollbar gutter to prevent layout shift -->
 <style>
 	:global(html) {
 		scrollbar-gutter: stable;
@@ -466,13 +458,17 @@
 </style>
 
 <!-- Header Navigation -->
-<header class="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border/40">
-	<div class="px-6 md:px-12 h-16 flex items-center justify-between max-w-7xl mx-auto w-full">
+<header class="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border/40">
+	<div class="px-6 md:px-12 h-16 flex items-center justify-between">
+		<!-- Logo -->
 		<div class="inline-flex items-center gap-3">
-			<div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center font-bold text-primary-foreground text-sm">S</div>
-			<span class="font-semibold text-foreground hidden sm:inline">Sabify</span>
+			<!-- <div class="w-9 h-9 rounded-lg bg-primary flex items-center justify-center font-bold text-sm text-primary-foreground">
+				S
+			</div> -->
+			<span class="font-semibold text-foreground">Sabify</span>
 		</div>
 
+		<!-- Home Button -->
 		<Button
 			variant="ghost"
 			size="sm"
@@ -486,23 +482,27 @@
 </header>
 
 <div class="min-h-screen bg-background pt-16">
-	<!-- Background accent (hero element) -->
-	<div class="fixed inset-0 top-16 pointer-events-none overflow-hidden">
-		<div class="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/5 blur-3xl"></div>
-		<div class="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-primary/3 blur-3xl"></div>
-	</div>
-
-	<!-- Main content -->
 	<div class="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-64px)] px-4 py-8 md:py-12">
-		<div class="w-full max-w-2xl mx-auto">
+		<div class="w-full max-w-md mx-auto">
+			<!-- Mobile Logo -->
+			<div class="text-center mb-8">
+				<div class="inline-flex items-center gap-3">
+					<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center font-bold text-lg text-primary-foreground">
+						S
+					</div>
+					<span class="text-2xl font-bold">Sabify</span>
+				</div>
+				<p class="text-sm text-muted-foreground mt-2">Everything Campus. One App.</p>
+			</div>
+
 			<!-- Stepper -->
-			<div class="mb-8">
-				<div class="flex items-center gap-2 mb-3">
+			<div class="mb-6">
+				<div class="flex items-center gap-2 mb-2">
 					{#each [1, 2, 3, 4] as step}
-						<div class="h-2 flex-1 rounded-full {currentStep >= step ? 'bg-primary' : 'bg-muted'} transition-colors"></div>
+						<div class="h-1.5 flex-1 rounded-full {currentStep >= step ? 'bg-primary' : 'bg-muted'} transition-colors"></div>
 					{/each}
 				</div>
-				<div class="flex justify-between text-xs text-muted-foreground font-medium">
+				<div class="flex justify-between text-[10px] text-muted-foreground font-medium">
 					<span class="{currentStep >= 1 ? 'text-primary' : ''}">University</span>
 					<span class="{currentStep >= 2 ? 'text-primary' : ''}">Details</span>
 					<span class="{currentStep >= 3 ? 'text-primary' : ''}">Review</span>
@@ -511,11 +511,11 @@
 			</div>
 
 			<!-- Card -->
-			<Card class="border shadow-lg overflow-visible">
-				<CardHeader class="space-y-3 pb-4">
+			<Card class="border shadow-sm overflow-visible">
+				<CardHeader class="space-y-2 pb-4">
 					{#if selectedUniversity && currentStep <= 2}
-						<div class="flex items-center gap-3 pb-2 border-b">
-							<div class="w-12 h-12 rounded-lg bg-background border flex items-center justify-center overflow-hidden flex-shrink-0">
+						<div class="flex items-center gap-3 pb-3 border-b">
+							<div class="w-10 h-10 rounded-lg bg-background border flex items-center justify-center overflow-hidden flex-shrink-0">
 								{#if !logoError}
 									<img src={getLogoPath(selectedUniversity)} alt={selectedUniversity.name} onerror={() => (logoError = true)} class="w-full h-full object-contain p-1" />
 								{:else}
@@ -524,7 +524,7 @@
 							</div>
 							<div class="flex-1 min-w-0">
 								<p class="text-xs font-semibold tracking-wide text-muted-foreground uppercase truncate">{selectedUniversity.name}</p>
-								<p class="text-xs text-muted-foreground">{selectedUniversity.slug.toUpperCase()}</p>
+								<p class="text-[10px] text-muted-foreground">{selectedUniversity.slug.toUpperCase()}</p>
 							</div>
 							{#if currentStep >= 2}
 								<button type="button" class="text-xs text-muted-foreground hover:text-destructive underline whitespace-nowrap" onclick={clearUniversity}>
@@ -535,13 +535,13 @@
 					{/if}
 
 					<div>
-						<CardTitle class="text-2xl font-bold">
+						<CardTitle class="text-xl font-bold">
 							{#if currentStep === 1}Student verification
 							{:else if currentStep === 2}Your details
 							{:else if currentStep === 3}Review information
 							{:else}Secure your account{/if}
 						</CardTitle>
-						<CardDescription class="mt-1.5">
+						<CardDescription class="mt-1 text-sm">
 							{#if currentStep === 1}
 								{selectedUniversity ? 'Verify your school fee receipt' : 'Select your university to begin'}
 							{:else if currentStep === 2}
@@ -568,7 +568,7 @@
 					{#if currentStep === 1}
 						<div class="space-y-4">
 							{#if !selectedUniversity}
-								<div class="flex items-center gap-2 text-sm text-muted-foreground mb-3">
+								<div class="flex items-center gap-2 text-sm text-muted-foreground mb-2">
 									<School size={16} />
 									<span>Select your university to begin</span>
 								</div>
@@ -593,7 +593,7 @@
 										</div>
 
 										{#if showDropdown}
-											<div class="absolute top-full left-0 right-0 mt-2 bg-background border rounded-lg shadow-xl max-h-64 overflow-y-auto z-50 scrollbar-gutter-stable">
+											<div class="absolute top-full left-0 right-0 mt-2 bg-background border rounded-lg shadow-xl max-h-56 overflow-y-auto z-50">
 												{#if searchLoading}
 													{#each [1, 2, 3] as _}
 														<div class="px-4 py-3 border-b last:border-b-0 flex items-center gap-3">
@@ -627,14 +627,14 @@
 							{:else}
 								<!-- Receipt verification section -->
 								{#if receiptConfig}
-									<Alert class="border-primary/20 bg-primary/5 py-3 mb-3">
+									<Alert class="border-primary/20 bg-primary/5 py-3 mb-2">
 										<Info class="h-4 w-4" />
 										<AlertDescription class="text-xs">
-											Changing your matric number or editing the receipt reference after verification will restart the form. Scan carefully.
+											Changing your matric number or editing the receipt reference after verification will restart the form.
 										</AlertDescription>
 									</Alert>
 
-									<div class="p-4 bg-gradient-to-br from-primary/5 to-primary/2 rounded-lg border border-primary/10 space-y-4">
+									<div class="space-y-4">
 										<div class="flex items-center gap-2">
 											<Zap size={16} class="text-primary" />
 											<span class="font-semibold text-sm">{receiptConfig.badgeLabel}</span>
@@ -680,11 +680,11 @@
 
 										{#if showWebcam}
 											<div class="space-y-2">
-												<div class="relative rounded-lg overflow-hidden bg-black aspect-video">
+												<div class="relative rounded-lg overflow-hidden bg-black aspect-video max-h-48">
 													<!-- svelte-ignore a11y-media-has-caption -->
 													<video bind:this={videoEl} playsinline autoplay class="w-full h-full object-cover" />
 													<div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-														<div class="w-32 h-32 border-2 border-primary rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]" />
+														<div class="w-24 h-24 border-2 border-primary rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.4)]" />
 													</div>
 												</div>
 												<p class="text-xs text-muted-foreground text-center">Align QR code in the frame</p>
@@ -709,15 +709,11 @@
 													onpaste={(e) => {
 														e.preventDefault();
 														const pasted = e.clipboardData?.getData('text') || '';
-														
-														// Extract ref from pasted content (handles URLs)
 														const extracted = extractRef(pasted);
-														
 														if (!extracted.trim()) {
 															errorMessage = 'Invalid reference format. Please paste a valid receipt reference or URL containing the reference.';
 															return;
 														}
-														
 														errorMessage = '';
 														refNumber = extracted;
 														onRefInput();
@@ -734,7 +730,7 @@
 												{:else if !refMasked}
 													<button
 														type="button"
-														class="absolute right-1 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+														class="absolute right-1 top-1/2 -translate-y-1/2 px-3 py-1 text-xs font-medium rounded-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
 														onclick={() => fetchReceipt(false)}
 														disabled={!refNumber.trim() || !uniMatric.trim()}
 													>
@@ -763,8 +759,8 @@
 
 										<!-- Receipt preview -->
 										{#if receiptData}
-											<div class="rounded-lg border border-primary/20 bg-primary/5 dark:bg-primary/10 overflow-hidden">
-												<div class="flex items-center gap-1.5 px-3 py-2 border-b border-primary/20 bg-primary/10 dark:bg-primary/20">
+											<div class="rounded-lg border border-primary/20 bg-primary/5 overflow-hidden">
+												<div class="flex items-center gap-1.5 px-3 py-2 border-b border-primary/20 bg-primary/10">
 													<Check size={14} class="text-primary" />
 													<span class="text-xs font-bold tracking-wide text-primary uppercase">Verified</span>
 												</div>
@@ -807,8 +803,6 @@
 								</div>
 							{:else if !receiptConfig}
 								<!-- Manual identity fields -->
-
-								<!-- Matric / Reg number -->
 								<div class="space-y-2">
 									<label class="text-sm font-medium">Matric / Registration number <span class="text-destructive">*</span></label>
 									<div class="relative">
@@ -817,7 +811,6 @@
 									</div>
 								</div>
 
-								<!-- JAMB Reg -->
 								<div class="space-y-2">
 									<label class="text-sm font-medium">JAMB Registration Number <span class="text-muted-foreground text-xs ml-1">optional</span></label>
 									<div class="relative">
@@ -826,7 +819,6 @@
 									</div>
 								</div>
 
-								<!-- Name fields -->
 								<div class="grid grid-cols-2 gap-3">
 									<div class="space-y-2">
 										<label class="text-sm font-medium">Surname <span class="text-destructive">*</span></label>
@@ -844,7 +836,6 @@
 									</div>
 								</div>
 
-								<!-- Other name -->
 								<div class="space-y-2">
 									<label class="text-sm font-medium">Other name(s) <span class="text-muted-foreground text-xs ml-1">optional</span></label>
 									<div class="relative">
@@ -853,7 +844,6 @@
 									</div>
 								</div>
 
-								<!-- Faculty + Department -->
 								<div class="grid grid-cols-2 gap-3">
 									<div class="space-y-2">
 										<label class="text-sm font-medium">Faculty / College <span class="text-destructive">*</span></label>
@@ -872,7 +862,6 @@
 								</div>
 							{/if}
 
-							<!-- Phone -->
 							<div class="space-y-2">
 								<label class="text-sm font-medium">Phone number <span class="text-muted-foreground text-xs ml-1">optional</span></label>
 								<div class="relative">
@@ -881,7 +870,6 @@
 								</div>
 							</div>
 
-							<!-- Email -->
 							<div class="space-y-2">
 								<label class="text-sm font-medium">Email address <span class="text-destructive">*</span></label>
 								<div class="relative">
@@ -890,7 +878,6 @@
 								</div>
 							</div>
 
-							<!-- Nav -->
 							<div class="flex gap-3 pt-2">
 								<Button variant="outline" onclick={prevStep} disabled={isLoading} class="flex-1 h-10 font-medium">
 									<ChevronLeft size={16} /> Back
@@ -910,7 +897,6 @@
 								<span>Please review your information before continuing</span>
 							</div>
 
-							<!-- University -->
 							<div class="p-4 rounded-lg border border-border/50 bg-muted/30 space-y-3">
 								<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">University</div>
 								<div class="flex items-center gap-3">
@@ -930,7 +916,6 @@
 								</div>
 							</div>
 
-							<!-- Personal Information -->
 							<div class="p-4 rounded-lg border border-border/50 bg-muted/30 space-y-3">
 								<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Personal Information</div>
 								<div class="grid grid-cols-2 gap-3 text-sm">
@@ -955,7 +940,6 @@
 								</div>
 							</div>
 
-							<!-- Academic Information -->
 							<div class="p-4 rounded-lg border border-border/50 bg-muted/30 space-y-3">
 								<div class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Academic Information</div>
 								<div class="grid grid-cols-2 gap-3 text-sm">
@@ -986,7 +970,6 @@
 								</div>
 							</div>
 
-							<!-- Navigation -->
 							<div class="flex gap-3 pt-2">
 								<Button variant="outline" onclick={prevStep} disabled={isLoading} class="flex-1 h-10 font-medium">
 									<ChevronLeft size={16} /> Back
@@ -996,7 +979,6 @@
 								</Button>
 							</div>
 
-							<!-- Edit link -->
 							<p class="text-center text-xs text-muted-foreground pt-2 border-t">
 								Found an error?
 								<button type="button" onclick={prevStep} class="text-primary hover:underline font-medium">Go back and edit</button>
@@ -1012,7 +994,6 @@
 								<span>Create a strong password to protect your account</span>
 							</div>
 
-							<!-- Password -->
 							<div class="space-y-2">
 								<label class="text-sm font-medium">Password <span class="text-destructive">*</span></label>
 								<div class="relative">
@@ -1036,7 +1017,6 @@
 								<p class="text-xs text-muted-foreground">Minimum 6 characters</p>
 							</div>
 
-							<!-- Confirm password -->
 							<div class="space-y-2">
 								<label class="text-sm font-medium">Confirm password <span class="text-destructive">*</span></label>
 								<div class="relative">
@@ -1059,7 +1039,6 @@
 								</div>
 							</div>
 
-							<!-- Nav -->
 							<div class="flex gap-3 pt-2">
 								<Button variant="outline" onclick={prevStep} disabled={isLoading} class="flex-1 h-10 font-medium">
 									<ChevronLeft size={16} /> Back

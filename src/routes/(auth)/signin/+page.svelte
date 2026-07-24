@@ -67,10 +67,7 @@
 					});
 					await goto('/verify-email');
 				} else {
-					errors.form = data.message || 'Signin failed. Please try again.';
-					toast.error('Error', {
-						description: data.message || 'Something went wrong'
-					});
+					errors.form = data.message || 'Invalid credentials.';
 				}
 				return;
 			}
