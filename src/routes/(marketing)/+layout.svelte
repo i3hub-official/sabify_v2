@@ -1,4 +1,4 @@
-<!-- src/routes/(auth)/+layout.svelte -->
+<!-- src/routes/(marketing)/+layout.svelte -->
 <script lang="ts">
 	  import { page } from '$app/stores'
   import type { Snippet } from 'svelte';

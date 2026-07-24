@@ -1,95 +1,103 @@
 // src/lib/cache/client.ts
-// Cache client — Upstash Redis via its REST API, not a persistent-TCP
-// client like ioredis. This codebase's other integrations (payment, sms,
-// storage) are all fetch-based rather than long-lived connections, which
-// matters if this ever runs on an edge/serverless SvelteKit adapter
-// where a persistent TCP connection isn't available. Swap this file if
-// you're deploying somewhere with a normal Redis instance reachable over
-// TCP — the get/set/del/incr/expire/ping function signatures below
-// shouldn't need to change for callers.
+// In-memory cache — drop-in replacement for the Upstash Redis client.
+// Same function signatures, zero external dependencies.
 //
-// SERVER-ONLY WARNING: this file reads UPSTASH_REDIS_REST_TOKEN, a
-// secret. Like services/*.service.ts and rbac/guard.ts elsewhere in this
-// codebase, it is NOT placed under $lib/server/, so SvelteKit's
-// build-time server-only import guard won't stop a client component from
-// accidentally importing it and leaking the token into the browser
-// bundle. Only ever import this from +page.server.ts / +server.ts /
-// hooks.server.ts / other server-only code — never from a .svelte file.
+// Trade-offs vs Redis:
+//   • State is per-process and resets on server restart — fine for dev,
+//     and acceptable for single-instance production deployments.
+//   • Not shared across multiple server instances (no horizontal scaling).
+//     When you're ready to scale, swap this file back to the Upstash
+//     implementation — no callers need to change.
+//   • TTL expiry is lazy (checked on read) + periodic sweep every 60s,
+//     so memory usage stays bounded without a background thread per key.
+//
+// SERVER-ONLY: only import from +page.server.ts / +server.ts /
+// hooks.server.ts. Never import from a .svelte file.
 
-import { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } from '$env/static/private'
-
-const REDIS_URL = UPSTASH_REDIS_REST_URL
-const REDIS_TOKEN = UPSTASH_REDIS_REST_TOKEN
-
-function assertConfigured(): void {
-  if (!REDIS_URL || !REDIS_TOKEN) {
-    throw new Error('Cache client is not configured (UPSTASH_REDIS_REST_URL / UPSTASH_REDIS_REST_TOKEN missing)')
-  }
+interface CacheEntry {
+  value: string
+  expiresAt: number | null // ms timestamp, null = no expiry
 }
 
-async function command<T = unknown>(parts: (string | number)[]): Promise<T> {
-  assertConfigured()
-  const res = await fetch(REDIS_URL as string, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${REDIS_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(parts),
-  })
-  const data = await res.json()
-  if (!res.ok) {
-    throw new Error(data?.error || `Redis command failed: ${res.status}`)
+const store = new Map<string, CacheEntry>()
+
+// ── Lazy expiry sweep ─────────────────────────────────────────────────────────
+// Runs every 60 s to evict stale keys so the Map doesn't grow unboundedly
+// in long-running dev sessions.
+setInterval(() => {
+  const now = Date.now()
+  for (const [key, entry] of store) {
+    if (entry.expiresAt !== null && entry.expiresAt <= now) {
+      store.delete(key)
+    }
   }
-  return data.result as T
+}, 60_000).unref() // .unref() so this timer never keeps the process alive
+
+// ── Internal helpers ──────────────────────────────────────────────────────────
+
+function isExpired(entry: CacheEntry): boolean {
+  return entry.expiresAt !== null && entry.expiresAt <= Date.now()
 }
+
+function getEntry(key: string): CacheEntry | null {
+  const entry = store.get(key)
+  if (!entry) return null
+  if (isExpired(entry)) {
+    store.delete(key)
+    return null
+  }
+  return entry
+}
+
+// ── Public API (mirrors the Upstash client exactly) ───────────────────────────
 
 export function isCacheConfigured(): boolean {
-  return Boolean(REDIS_URL && REDIS_TOKEN)
+  return true // always available
 }
 
 export async function pingCache(): Promise<boolean> {
-  if (!isCacheConfigured()) return false
-  try {
-    const result = await command<string>(['PING'])
-    return result === 'PONG'
-  } catch (error) {
-    console.error('[cache.client] pingCache failed:', error)
-    return false
-  }
+  return true
 }
 
 export async function cacheGet<T = string>(key: string): Promise<T | null> {
-  const result = await command<string | null>(['GET', key])
-  return (result as T) ?? null
+  const entry = getEntry(key)
+  if (!entry) return null
+  return entry.value as unknown as T
 }
 
 export async function cacheSet(key: string, value: string, ttlSeconds?: number): Promise<void> {
-  if (ttlSeconds) {
-    await command(['SET', key, value, 'EX', ttlSeconds])
-  } else {
-    await command(['SET', key, value])
-  }
+  store.set(key, {
+    value,
+    expiresAt: ttlSeconds ? Date.now() + ttlSeconds * 1000 : null,
+  })
 }
 
 export async function cacheDel(key: string): Promise<void> {
-  await command(['DEL', key])
+  store.delete(key)
 }
 
 /**
- * Atomic increment, with expiry set only the first time a key is created
- * within a window — repeated increments never push the expiry back out,
- * which is what makes this safe to use as a fixed-window rate-limit
- * counter (see middleware/rate-limit.ts).
+ * Atomic increment with fixed-window expiry semantics:
+ * expiry is set only when the key is first created (value === 1),
+ * so repeated increments within the window never push the reset time out.
+ * This matches the Redis INCR + EXPIRE behaviour used by rate-limit.ts.
  */
 export async function cacheIncr(key: string, ttlSeconds?: number): Promise<number> {
-  const value = await command<number>(['INCR', key])
-  if (ttlSeconds && value === 1) {
-    await command(['EXPIRE', key, ttlSeconds])
-  }
-  return value
+  const entry = getEntry(key)
+  const current = entry ? parseInt(entry.value, 10) : 0
+  const next = current + 1
+
+  store.set(key, {
+    value: String(next),
+    // Only set expiry on first creation — preserve existing expiry on increment
+    expiresAt: entry ? entry.expiresAt : ttlSeconds ? Date.now() + ttlSeconds * 1000 : null,
+  })
+
+  return next
 }
 
 export async function cacheExpire(key: string, ttlSeconds: number): Promise<void> {
-  await command(['EXPIRE', key, ttlSeconds])
+  const entry = store.get(key)
+  if (!entry || isExpired(entry)) return
+  store.set(key, { ...entry, expiresAt: Date.now() + ttlSeconds * 1000 })
 }
