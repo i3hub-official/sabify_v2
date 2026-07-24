@@ -1,32 +1,58 @@
 // src/routes/api/auth/signin/+server.ts
-// Login endpoint — validates email/password, creates session
+// Login endpoint — validates email/password, creates session, returns token
 
 import { json } from '@sveltejs/kit'
 import type { RequestHandler } from '@sveltejs/kit'
-import { findUserByEmail, verifyPassword, createSession, USER_COOKIE, cookieOptions } from '$lib/server/auth/index'
-import { revealEmail, revealName } from '$lib/security/dataProtection'
+import {
+  findUserByEmail,
+  verifyPassword,
+  createUserSession,
+  USER_COOKIE,
+  cookieOptions,
+} from '$lib/server/auth/index.js'
+import { revealEmail, revealName } from '$lib/security/dataProtection.js'
+import { checkActionRateLimit } from '$lib/middleware/rate-limit.js'
 
-export const POST: RequestHandler = async ({ request, locals, cookies }) => {
+export const POST: RequestHandler = async ({ request, cookies, getClientAddress }) => {
   try {
-    const body = await request.json()
+    let body: any
+    try {
+      body = await request.json()
+    } catch {
+      return json({ error: 'Request body must be valid JSON' }, { status: 400 })
+    }
+
     const { email, password } = body
 
     // ── Validation ───────────────────────────────────────────────────────
     if (!email || !password) {
+      return json({ error: 'Email and password are required.' }, { status: 400 })
+    }
+
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return json({ error: 'Email and password must be strings.' }, { status: 400 })
+    }
+
+    const normalizedEmail = email.trim().toLowerCase()
+
+    // ── Rate limiting ────────────────────────────────────────────────────
+    // Prevent brute force: max 5 attempts per email per minute
+    const rateLimitResult = await checkActionRateLimit('signin', normalizedEmail, 5, 60)
+    if (!rateLimitResult.allowed) {
       return json(
-        { error: 'Email and password are required.' },
-        { status: 400 }
+        {
+          error: 'Too many signin attempts. Please try again later.',
+          remaining: rateLimitResult.remaining,
+        },
+        { status: 429 },
       )
     }
 
     // ── Find user ────────────────────────────────────────────────────────
-    const user = await findUserByEmail(email)
+    const user = await findUserByEmail(normalizedEmail)
     if (!user) {
-      // Don't reveal whether email exists (security best practice)
-      return json(
-        { error: 'Invalid email or password.' },
-        { status: 401 }
-      )
+      // Don't reveal whether email exists
+      return json({ error: 'Invalid email or password.' }, { status: 401 })
     }
 
     // ── Check suspension ─────────────────────────────────────────────────
@@ -36,27 +62,23 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
           error: 'This account has been suspended. Please contact support.',
           suspended: true,
         },
-        { status: 403 }
+        { status: 403 },
       )
     }
 
     // ── Verify password ──────────────────────────────────────────────────
     const passwordValid = await verifyPassword(password, user.passwordHash)
     if (!passwordValid) {
-      return json(
-        { error: 'Invalid email or password.' },
-        { status: 401 }
-      )
+      return json({ error: 'Invalid email or password.' }, { status: 401 })
     }
 
     // ── Create session ───────────────────────────────────────────────────
     try {
-      // Can't use createSession wrapper (needs SvelteKit event)
-      // So create session manually and set cookie
       const { token, refreshToken } = await createUserSession(user.id, {
-        ipAddress: request.headers.get('x-forwarded-for') ||
-                   request.headers.get('cf-connecting-ip') ||
-                   undefined,
+        ipAddress:
+          request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+          request.headers.get('cf-connecting-ip') ||
+          getClientAddress(),
         userAgent: request.headers.get('user-agent') || undefined,
       })
 
@@ -66,52 +88,47 @@ export const POST: RequestHandler = async ({ request, locals, cookies }) => {
         secure: process.env.NODE_ENV === 'production',
       })
 
-      // Decrypt PII for response
-      const decryptedEmail = revealEmail(user.email)
+      // ── Decrypt PII for response ──────────────────────────────────────
+      // user.email holds the fixed-IV encrypted ciphertext (not the hash).
+      // user.firstName / surname / otherName are also encrypted ciphertext.
+      // All reveal* functions are synchronous — no await needed.
+      const decryptedEmail     = revealEmail(user.email)
       const decryptedFirstName = revealName(user.firstName)
-      const decryptedSurname = revealName(user.surname)
+      const decryptedSurname   = revealName(user.surname)
       const decryptedOtherName = user.otherName ? revealName(user.otherName) : null
 
-      return json({
-        success: true,
-        user: {
-          id: user.id,
-          email: decryptedEmail,
-          firstName: decryptedFirstName,
-          otherName: decryptedOtherName,
-          surname: decryptedSurname,
-          role: user.role,
-          emailVerified: user.emailVerified,
-          isVerified: user.isVerified,
-          nameArranged: user.nameArranged,
-          universityId: user.universityId,
-          departmentId: user.departmentId,
-          adminProfile: user.adminProfile,
+      return json(
+        {
+          success: true,
+          user: {
+            id:           user.id,
+            email:        decryptedEmail,
+            firstName:    decryptedFirstName,
+            otherName:    decryptedOtherName,
+            surname:      decryptedSurname,
+            role:         user.role,
+            emailVerified: user.emailVerified,
+            isVerified:   user.isVerified,
+            nameArranged: user.nameArranged,
+            universityId: user.universityId,
+            departmentId: user.departmentId,
+            adminProfile: user.adminProfile,
+          },
+          token,
+          refreshToken,
         },
-        token,
-        refreshToken,
-      })
+        { status: 200 },
+      )
     } catch (sessionError) {
       console.error('[signin] Session creation error:', sessionError)
-      return json(
-        { error: 'Unable to create session. Please try again.' },
-        { status: 500 }
-      )
+      return json({ error: 'Unable to create session. Please try again.' }, { status: 500 })
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    console.error('[signin] Error:', message)
-
+    console.error('[signin] Unexpected error:', message)
     return json(
       { error: 'An error occurred during login. Please try again.' },
-      { status: 500 }
+      { status: 500 },
     )
   }
-}
-
-// Import helper (add this to your auth/index.ts exports)
-function createUserSession(userId: string, meta: any) {
-  // This is imported from $lib/server/auth/index
-  // Just placeholder here — actual function defined in index.ts
-  throw new Error('Import createUserSession from $lib/server/auth/index')
 }

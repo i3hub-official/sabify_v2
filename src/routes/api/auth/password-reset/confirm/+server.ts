@@ -12,6 +12,8 @@ export const POST: RequestHandler = async ({ request }) => {
     const body = await request.json()
     const { code, newPassword, confirmPassword } = body
 
+    
+
     // ── Validation ───────────────────────────────────────────────────────
     if (!code) {
       return json(

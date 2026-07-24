@@ -16,8 +16,10 @@
 // bundle. Only ever import this from +page.server.ts / +server.ts /
 // hooks.server.ts / other server-only code — never from a .svelte file.
 
-const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL
-const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN
+import { UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN } from '$env/static/private'
+
+const REDIS_URL = UPSTASH_REDIS_REST_URL
+const REDIS_TOKEN = UPSTASH_REDIS_REST_TOKEN
 
 function assertConfigured(): void {
   if (!REDIS_URL || !REDIS_TOKEN) {

@@ -86,9 +86,9 @@
 			} else if (data.user?.role === 'OWNER') {
 				await goto('/owner/dashboard');
 			} else if (data.user?.role === 'LECTURER') {
-				await goto('/app/dashboard');
+				await goto('/dashboard');
 			} else {
-				await goto('/app/dashboard');
+				await goto('/dashboard');
 			}
 		} catch (error) {
 			console.error('Signin error:', error);
