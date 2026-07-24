@@ -3,7 +3,8 @@
 
 import { json } from '@sveltejs/kit'
 import type { RequestHandler } from '@sveltejs/kit'
-import { canRequestReset, createPasswordReset, findUserByEmail } from '$lib/server/auth/reset'
+import { canRequestReset, createPasswordReset } from '$lib/server/auth/reset'
+import { findUserByEmail } from '$lib/server/auth'
 import { sendPasswordResetEmail } from '$lib/services/email.service'
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -43,7 +44,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
     // ── Generate reset code & send email ─────────────────────────────────
     try {
-      const code = await createPasswordReset(user.id)
+      const code = await createPasswordReset(user)
 
       // Send email with code
       await sendPasswordResetEmail({

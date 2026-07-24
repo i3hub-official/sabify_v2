@@ -3,8 +3,9 @@
 
 import { json } from '@sveltejs/kit'
 import type { RequestHandler } from '@sveltejs/kit'
-import { verifyResetCode, consumeResetToken, hashPassword, validatePasswordStrength } from '$lib/server/auth'
-import { getPrismaClient } from '$lib/server/db/index'
+import { verifyResetToken, consumeResetToken } from '$lib/server/auth/reset'
+import { hashPassword, validatePasswordStrength } from '$lib/server/auth'
+import { getPrismaClient } from '$lib/server/db/index.js'
 
 export const POST: RequestHandler = async ({ request }) => {
   try {
@@ -43,7 +44,7 @@ export const POST: RequestHandler = async ({ request }) => {
     }
 
     // ── Verify reset code ────────────────────────────────────────────────
-    const codeCheck = await verifyResetCode(code)
+    const codeCheck = await verifyResetToken(code)
     if (!codeCheck.valid || !codeCheck.userId) {
       return json(
         { error: codeCheck.error || 'Invalid or expired reset code.' },
@@ -62,10 +63,10 @@ export const POST: RequestHandler = async ({ request }) => {
           where: { id: codeCheck.userId },
           data: { passwordHash },
         })
-
-        // Mark token as used
-        await consumeResetToken(code)
       })
+
+      // Mark token as used (after transaction succeeds)
+      await consumeResetToken(code)
 
       return json({
         success: true,

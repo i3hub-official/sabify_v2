@@ -5,6 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { Role } from './roles';
+import { PLATFORM_ROLES, ADMIN_ROLES } from './roles';
 import { can, type Resource, type Action } from './permissions';
 
 // ── Re-exports for convenience ────────────────────────────────────────────────
@@ -28,15 +29,21 @@ export function canUI(role: Role | undefined | null, resource: Resource, action:
 }
 
 // ── Role group helpers ────────────────────────────────────────────────────────
+//
+// These now delegate to the single sources of truth (PLATFORM_ROLES /
+// ADMIN_ROLES in roles.ts, or the permission matrix in permissions.ts)
+// instead of re-hardcoding role lists. Two independent copies of the same
+// list drift silently the first time only one gets updated — delegating
+// makes that impossible.
 
 /** Platform-wide authority (no scope restrictions) */
 export function isPlatformRole(role: Role): boolean {
-  return ['OWNER', 'LAW_ENFORCEMENT', 'SUPER_ADMIN'].includes(role);
+  return (PLATFORM_ROLES as Role[]).includes(role);
 }
 
 /** Has access to any part of the /admin panel */
 export function isAdminRole(role: Role): boolean {
-  return ['OWNER', 'LAW_ENFORCEMENT', 'SUPER_ADMIN', 'UNIVERSITY_ADMIN', 'COLLEGE_ADMIN', 'DEPT_ADMIN'].includes(role);
+  return (ADMIN_ROLES as Role[]).includes(role);
 }
 
 /** Can auto-publish events (no approval queue) */
@@ -46,12 +53,12 @@ export function canAutoPublishEvents(role: Role): boolean {
 
 /** Can approve/reject events submitted by others */
 export function canApproveEvents(role: Role): boolean {
-  return ['OWNER', 'SUPER_ADMIN', 'UNIVERSITY_ADMIN', 'COLLEGE_ADMIN'].includes(role);
+  return can(role, 'event', 'approve');
 }
 
 /** Can create events (goes to pending for most roles) */
 export function canCreateEvents(role: Role): boolean {
-  return ['OWNER', 'SUPER_ADMIN', 'UNIVERSITY_ADMIN', 'COLLEGE_ADMIN', 'DEPT_ADMIN', 'COURSE_REP'].includes(role);
+  return can(role, 'event', 'create');
 }
 
 /** Can RSVP to events */
@@ -61,7 +68,7 @@ export function canRsvp(role: Role): boolean {
 
 /** Can verify vault documents */
 export function canVerifyDocs(role: Role): boolean {
-  return ['OWNER', 'SUPER_ADMIN', 'UNIVERSITY_ADMIN', 'COLLEGE_ADMIN', 'DEPT_ADMIN', 'COURSE_REP', 'CONTRIBUTOR'].includes(role);
+  return can(role, 'vault_document', 'verify');
 }
 
 /** Can send safety alerts */
@@ -69,9 +76,17 @@ export function canSendAlerts(role: Role): boolean {
   return can(role, 'safety_alert', 'create');
 }
 
-/** Can send URGENT alerts specifically */
+/**
+ * Can send URGENT alerts specifically.
+ *
+ * Must mirror guard.ts's requireAlertSeverityPermission exactly, or the UI
+ * will hide (or show) the option for a role the server disagrees with.
+ * The server only blocks DEPT_ADMIN from URGENT — everyone else who can
+ * create a safety_alert at all (including UNIVERSITY_ADMIN and
+ * COLLEGE_ADMIN, previously missing from this list) is allowed.
+ */
 export function canSendUrgentAlerts(role: Role): boolean {
-  return ['OWNER', 'LAW_ENFORCEMENT', 'SUPER_ADMIN'].includes(role);
+  return can(role, 'safety_alert', 'create') && role !== 'DEPT_ADMIN';
 }
 
 /** Can manage users (assign roles, suspend, etc.) */
@@ -284,6 +299,9 @@ export function getAppNavigation(role: Role): AppNavItem[] {
   }
 
   // ── Academics ──────────────────────────────────────────────────
+  // 'registration' is now a real Resource (Prisma: Registration) — this
+  // previously referenced a resource that didn't exist in permissions.ts,
+  // so `can()` always returned false and this section never rendered.
   if (can(role, 'course', 'read') || can(role, 'registration', 'read')) {
     nav.push({
       href: '/courses',
@@ -298,6 +316,7 @@ export function getAppNavigation(role: Role): AppNavItem[] {
   }
 
   // ── Logbook ────────────────────────────────────────────────────
+  // Same fix — 'submission' (Prisma: Submission) is now a real Resource.
   if (can(role, 'submission', 'read')) {
     nav.push({
       href: '/logbook',

@@ -105,7 +105,7 @@
 
       <div class="actions">
         <!-- Seed All -->
-        <form method="POST" action="?/seedAll" use:enhance on:submit={onSubmit} on:change={onComplete}>
+        <form method="POST" action="?/seedAll" use:enhance onsubmit={onSubmit} onchange={onComplete}>
           <button type="submit" disabled={loading} class="btn btn-primary btn-lg">
             {#if loading}
               🔄 Seeding...
@@ -118,7 +118,7 @@
 
         <!-- Seed Individual Steps -->
         <div class="grid-2">
-          <form method="POST" action="?/seedUniversities" use:enhance on:submit={onSubmit} on:change={onComplete}>
+          <form method="POST" action="?/seedUniversities" use:enhance onsubmit={onSubmit} onchange={onComplete}>
             <button type="submit" disabled={loading} class="btn btn-secondary">
               {#if loading}
                 🔄 Loading...
@@ -129,7 +129,7 @@
             <p class="help-text">Create all universities</p>
           </form>
 
-          <form method="POST" action="?/seedCollegesAndDepts" use:enhance on:submit={onSubmit} on:change={onComplete}>
+          <form method="POST" action="?/seedCollegesAndDepts" use:enhance onsubmit={onSubmit} onchange={onComplete}>
             <button type="submit" disabled={loading} class="btn btn-secondary">
               {#if loading}
                 🔄 Loading...
@@ -140,7 +140,7 @@
             <p class="help-text">Create colleges and departments</p>
           </form>
 
-          <form method="POST" action="?/seedCourses" use:enhance on:submit={onSubmit} on:change={onComplete}>
+          <form method="POST" action="?/seedCourses" use:enhance onsubmit={onSubmit} onchange={onComplete}>
             <button type="submit" disabled={loading} class="btn btn-secondary">
               {#if loading}
                 🔄 Loading...
@@ -151,7 +151,7 @@
             <p class="help-text">Create sample courses</p>
           </form>
 
-          <form method="POST" action="?/seedAdmins" use:enhance on:submit={onSubmit} on:change={onComplete}>
+          <form method="POST" action="?/seedAdmins" use:enhance onsubmit={onSubmit} onchange={onComplete}>
             <button type="submit" disabled={loading} class="btn btn-secondary">
               {#if loading}
                 🔄 Loading...
@@ -170,7 +170,7 @@
       <h2>⚠️ Danger Zone</h2>
       <div class="warning">
         <p><strong>Reset Database:</strong> Permanently delete ALL data. This cannot be undone.</p>
-        <button type="button" class="btn btn-danger" on:click={resetDatabasePrompt}>
+        <button type="button" class="btn btn-danger" onclick={resetDatabasePrompt}>
           🗑️ Reset Database
         </button>
       </div>

@@ -10,7 +10,9 @@ export type Resource =
   | 'college'
   | 'department'
   | 'course'
+  | 'registration'    // Course registration (Prisma: Registration)
   | 'vault_document'
+  | 'submission'       // Logbook submission (Prisma: Submission)
   | 'event'
   | 'safety_alert'
   | 'payment'
@@ -49,7 +51,9 @@ export const ROLE_PERMISSIONS: Record<Role, PermissionEntry[]> = {
     { resource: 'college',      actions: ['create','read','update','delete'] },
     { resource: 'department',   actions: ['create','read','update','delete'] },
     { resource: 'course',       actions: ['create','read','update','delete'] },
+    { resource: 'registration', actions: ['create','read','update','delete'] },
     { resource: 'vault_document',actions:['create','read','update','delete','verify'] },
+    { resource: 'submission',   actions: ['create','read','update','delete'] },
     { resource: 'event',        actions: ['create','read','update','delete','approve'] },
     { resource: 'safety_alert', actions: ['create','read','update','delete'] },
     { resource: 'payment',      actions: ['read','update','delete'] },
@@ -70,7 +74,9 @@ export const ROLE_PERMISSIONS: Record<Role, PermissionEntry[]> = {
     { resource: 'college',      actions: ['read'] },
     { resource: 'department',   actions: ['read'] },
     { resource: 'course',       actions: ['read'] },
+    { resource: 'registration', actions: ['read'] },
     { resource: 'vault_document',actions:['read'] },
+    { resource: 'submission',   actions: ['read'] },
     { resource: 'event',        actions: ['read'] },
     { resource: 'safety_alert', actions: ['create','read'] }, // severity enforced in action
     { resource: 'payment',      actions: ['read'] },
@@ -91,7 +97,9 @@ export const ROLE_PERMISSIONS: Record<Role, PermissionEntry[]> = {
     { resource: 'college',      actions: ['create','read','update','delete'] },
     { resource: 'department',   actions: ['create','read','update','delete'] },
     { resource: 'course',       actions: ['create','read','update','delete'] },
+    { resource: 'registration', actions: ['create','read','update','delete'] },
     { resource: 'vault_document',actions:['create','read','update','delete','verify'] },
+    { resource: 'submission',   actions: ['create','read','update','delete'] },
     { resource: 'event',        actions: ['create','read','update','delete','approve'] },
     { resource: 'safety_alert', actions: ['create','read','update','delete'] },
     { resource: 'payment',      actions: ['read','update'] },
@@ -112,7 +120,9 @@ export const ROLE_PERMISSIONS: Record<Role, PermissionEntry[]> = {
     { resource: 'college',      actions: ['create','read','update','delete'] },
     { resource: 'department',   actions: ['create','read','update','delete'] },
     { resource: 'course',       actions: ['create','read','update','delete'] },
+    { resource: 'registration', actions: ['read','update'] },
     { resource: 'vault_document',actions:['create','read','update','delete','verify'] },
+    { resource: 'submission',   actions: ['read','update'] },
     { resource: 'event',        actions: ['create','read','update','delete','approve'] },
     { resource: 'safety_alert', actions: ['create','read','update','delete'] },
     { resource: 'payment',      actions: ['read'] },
@@ -132,7 +142,9 @@ export const ROLE_PERMISSIONS: Record<Role, PermissionEntry[]> = {
     { resource: 'college',      actions: ['read','update'] },
     { resource: 'department',   actions: ['create','read','update','delete'] },
     { resource: 'course',       actions: ['create','read','update','delete'] },
+    { resource: 'registration', actions: ['read'] },
     { resource: 'vault_document',actions:['create','read','update','delete','verify'] },
+    { resource: 'submission',   actions: ['read','update'] },
     { resource: 'event',        actions: ['create','read','update','delete','approve'] },
     { resource: 'safety_alert', actions: ['create','read'] },
     { resource: 'payment',      actions: ['read'] },
@@ -150,7 +162,9 @@ export const ROLE_PERMISSIONS: Record<Role, PermissionEntry[]> = {
     { resource: 'user',         actions: ['read'] },
     { resource: 'department',   actions: ['read','update'] },
     { resource: 'course',       actions: ['create','read','update','delete'] },
+    { resource: 'registration', actions: ['read','update'] },
     { resource: 'vault_document',actions:['create','read','update','delete','verify'] },
+    { resource: 'submission',   actions: ['read','update'] },
     { resource: 'event',        actions: ['create','read','update','delete'] },
     { resource: 'safety_alert', actions: ['create','read'] },
     { resource: 'payment',      actions: ['read'] },
@@ -163,11 +177,13 @@ export const ROLE_PERMISSIONS: Record<Role, PermissionEntry[]> = {
   ],
 
   // ── COURSE REP ────────────────────────────────────────────────────────────
-  // Scoped to courseRepCourseId + courseRepLevel
+  // Scoped to their courseRepCourseId + courseRepLevel
   COURSE_REP: [
     { resource: 'user',         actions: ['read'] },
     { resource: 'course',       actions: ['read'] },
+    { resource: 'registration', actions: ['read'] },
     { resource: 'vault_document',actions:['create','read','update','verify'] },
+    { resource: 'submission',   actions: ['read'] },
     { resource: 'event',        actions: ['create','read'] },
     { resource: 'safety_alert', actions: ['read'] },
     { resource: 'payment',      actions: ['read'] },      // own only
@@ -182,7 +198,9 @@ export const ROLE_PERMISSIONS: Record<Role, PermissionEntry[]> = {
   // ── CONTRIBUTOR ───────────────────────────────────────────────────────────
   CONTRIBUTOR: [
     { resource: 'user',         actions: ['read'] },       // own only
+    { resource: 'registration', actions: ['create','read','update'] }, // own only
     { resource: 'vault_document',actions:['create','read','update','verify'] },
+    { resource: 'submission',   actions: ['create','read','update'] }, // own only
     { resource: 'event',        actions: ['read'] },
     { resource: 'safety_alert', actions: ['read'] },
     { resource: 'payment',      actions: ['read'] },       // own only
@@ -197,7 +215,9 @@ export const ROLE_PERMISSIONS: Record<Role, PermissionEntry[]> = {
   // ── STUDENT ───────────────────────────────────────────────────────────────
   STUDENT: [
     { resource: 'user',         actions: ['read'] },       // own only
+    { resource: 'registration', actions: ['create','read','update'] }, // own only
     { resource: 'vault_document',actions:['create','read'] },
+    { resource: 'submission',   actions: ['create','read','update'] }, // own only
     { resource: 'event',        actions: ['read'] },
     { resource: 'safety_alert', actions: ['read'] },
     { resource: 'payment',      actions: ['read'] },       // own only

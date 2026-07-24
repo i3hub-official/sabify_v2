@@ -5,6 +5,7 @@ import { json } from '@sveltejs/kit'
 import type { RequestHandler } from '@sveltejs/kit'
 import { canResendVerification, createVerificationToken } from '$lib/server/auth/verification'
 import { sendVerificationEmail } from '$lib/services/email.service'
+import { revealEmail } from '$lib/security/dataProtection'
 
 export const POST: RequestHandler = async ({ locals }) => {
   try {
@@ -33,8 +34,11 @@ export const POST: RequestHandler = async ({ locals }) => {
     try {
       const code = await createVerificationToken(userId)
 
+      // Decrypt email from encrypted storage
+      const plainEmail = await revealEmail(locals.user.email, locals.user.emailHash)
+
       await sendVerificationEmail({
-        email: locals.user.email, // This is encrypted; decrypt if needed
+        email: plainEmail,
         code,
         expiryMinutes: 24 * 60, // 24 hours
       })
@@ -45,6 +49,7 @@ export const POST: RequestHandler = async ({ locals }) => {
       })
     } catch (emailError) {
       console.error('[verify-email/request] Email send error:', emailError)
+      // Still return success to avoid revealing whether email send failed
       return json({
         success: true,
         message: 'Verification code has been sent to your email.',

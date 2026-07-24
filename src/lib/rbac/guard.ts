@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { error } from '@sveltejs/kit';
-import { prisma } from '../server/prisma';
+import { getPrismaClient } from '$lib/server/db/index.js'
 import { can, type Resource, type Action } from './permissions';
 import { canManage, assignableRoles, PLATFORM_ROLES, type Role } from './roles';
 import type { AdminProfile } from '@prisma/client';
@@ -25,9 +25,32 @@ export type SessionUser = {
   departmentId?: number | null;
 };
 
+/**
+ * The full scope chain an admin actually sits in, resolved once from
+ * whichever single field is set on their AdminProfile.
+ *
+ * The schema comment on AdminProfile is explicit: "Only ONE of these
+ * should be non-null per admin" (universityId / collegeId / departmentId /
+ * courseId). That means a COLLEGE_ADMIN's AdminProfile.universityId is
+ * null — it is NOT denormalized onto the row. Any scope check that reads
+ * admin.universityId directly (as the previous version of this file did)
+ * is comparing against null and will wrongly deny access whenever a
+ * caller also passes universityId in the scope object. This type — and
+ * resolveAdminScope() below — walk the Prisma relations once (at
+ * loadScopedUser time) to fill in the whole chain, so withinScope() can
+ * stay a cheap synchronous comparison.
+ */
+export type ResolvedAdminScope = {
+  universityId: string | null;
+  collegeId: number | null;
+  departmentId: number | null;
+  courseId: string | null;
+};
+
 /** User enriched with their admin scope (if they're an admin) */
 export type ScopedUser = SessionUser & {
   adminProfile?: AdminProfile | null; // null if not an admin
+  resolvedScope?: ResolvedAdminScope | null; // full hierarchy chain, resolved once
 };
 
 /** Resource scope constraints */
@@ -35,6 +58,7 @@ export type ResourceScope = {
   universityId?: string | null;
   collegeId?: number | null;
   departmentId?: number | null;
+  courseId?: string | null; // for course-scoped resources (vault docs, timetable entries, course reps)
   organizerId?: string | null; // for "own" checks
 };
 
@@ -55,14 +79,81 @@ export type ResourceScope = {
  * }
  */
 export async function getAdminProfile(userId: string): Promise<AdminProfile | null> {
+  const prisma = await getPrismaClient();
   return prisma.adminProfile.findUnique({
     where: { userId },
   });
 }
 
 /**
- * Load a user from session + fetch their admin profile in one go.
- * Use in +page.server.ts load() functions.
+ * Resolve an AdminProfile's single scope field into the full hierarchy
+ * chain (university → college → department → course), via one Prisma
+ * lookup keyed off whichever field is actually set. Returns null for
+ * platform-wide admins (OWNER/SUPER_ADMIN/LAW_ENFORCEMENT) — those are
+ * short-circuited by PLATFORM_ROLES in withinScope() and never need this.
+ */
+export async function resolveAdminScope(admin: AdminProfile | null): Promise<ResolvedAdminScope | null> {
+  if (!admin) return null;
+
+  if (admin.courseId) {
+    const prisma = await getPrismaClient();
+    const course = await prisma.course.findUnique({
+      where: { id: admin.courseId },
+      select: {
+        id: true,
+        departmentId: true,
+        department: { select: { collegeId: true, college: { select: { universityId: true } } } },
+      },
+    });
+    if (!course) return null;
+    return {
+      universityId: course.department.college.universityId,
+      collegeId: course.department.collegeId,
+      departmentId: course.departmentId,
+      courseId: course.id,
+    };
+  }
+
+  if (admin.departmentId) {
+      const prisma = await getPrismaClient();
+    const dept = await prisma.department.findUnique({
+      where: { id: admin.departmentId },
+      select: { id: true, collegeId: true, college: { select: { universityId: true } } },
+    });
+    if (!dept) return null;
+    return {
+      universityId: dept.college.universityId,
+      collegeId: dept.collegeId,
+      departmentId: dept.id,
+      courseId: null,
+    };
+  }
+
+  if (admin.collegeId) {
+      const prisma = await getPrismaClient();
+    const college = await prisma.college.findUnique({
+      where: { id: admin.collegeId },
+      select: { id: true, universityId: true },
+    });
+    if (!college) return null;
+    return {
+      universityId: college.universityId,
+      collegeId: college.id,
+      departmentId: null,
+      courseId: null,
+    };
+  }
+
+  if (admin.universityId) {
+    return { universityId: admin.universityId, collegeId: null, departmentId: null, courseId: null };
+  }
+
+  return null;
+}
+
+/**
+ * Load a user from session + fetch their admin profile (and its resolved
+ * scope chain) in one go. Use in +page.server.ts load() functions.
  *
  * @example
  * export const load = async ({ locals }) => {
@@ -76,10 +167,12 @@ export async function loadScopedUser(
   if (!sessionUser) throw error(401, 'Not signed in');
 
   const adminProfile = await getAdminProfile(sessionUser.id);
+  const resolvedScope = await resolveAdminScope(adminProfile);
 
   return {
     ...sessionUser,
     adminProfile: adminProfile || null,
+    resolvedScope,
   };
 }
 
@@ -117,12 +210,10 @@ export function requirePermission(
  * Returns true if the user's scope covers the given resource scope.
  * Platform roles (OWNER, LAW_ENFORCEMENT, SUPER_ADMIN) always return true.
  *
- * BEFORE (old schema):
- * if (!withinScope(locals.user, { collegeId: event.collegeId }))
- *
- * AFTER (new schema):
- * const user = await loadScopedUser(locals.user);
- * if (!withinScope(user, { collegeId: event.collegeId }))
+ * Requires `user.resolvedScope` to have been populated by loadScopedUser()
+ * — a ScopedUser built any other way (without calling resolveAdminScope)
+ * will be denied all scoped access, fail-closed, rather than silently
+ * comparing against fields that were never resolved.
  *
  * @example
  * const user = await loadScopedUser(locals.user);
@@ -131,40 +222,40 @@ export function requirePermission(
  * }
  */
 export function withinScope(user: ScopedUser, scope: ResourceScope): boolean {
-  // Platform roles (OWNER, SUPER_ADMIN) have access everywhere
+  // Platform roles (OWNER, LAW_ENFORCEMENT, SUPER_ADMIN) have access everywhere
   if ((PLATFORM_ROLES as string[]).includes(user.role)) return true;
 
-  // For scoped roles, check their AdminProfile
-  const admin = user.adminProfile;
+  const resolved = user.resolvedScope;
 
   switch (user.role) {
     case 'UNIVERSITY_ADMIN':
-      // Must have universityId in scope + it must match
-      return (
-        admin?.universityId !== undefined &&
-        admin.universityId === scope.universityId
-      );
+      return !!resolved?.universityId && resolved.universityId === scope.universityId;
 
     case 'COLLEGE_ADMIN':
-      // Must have collegeId in scope + it must match
-      // + if universityId is specified, it must also match
       return (
-        admin?.collegeId !== undefined &&
-        admin.collegeId === scope.collegeId &&
-        (!scope.universityId || admin.universityId === scope.universityId)
+        !!resolved?.collegeId &&
+        resolved.collegeId === scope.collegeId &&
+        (!scope.universityId || resolved.universityId === scope.universityId)
       );
 
     case 'DEPT_ADMIN':
-      // Must have departmentId in scope + it must match
       return (
-        admin?.departmentId !== undefined &&
-        admin.departmentId === scope.departmentId &&
-        (!scope.universityId || admin.universityId === scope.universityId)
+        !!resolved?.departmentId &&
+        resolved.departmentId === scope.departmentId &&
+        (!scope.collegeId || resolved.collegeId === scope.collegeId) &&
+        (!scope.universityId || resolved.universityId === scope.universityId)
       );
 
     case 'COURSE_REP':
-      // Course reps can only act within their university
-      return user.universityId === scope.universityId;
+      // Course reps are scoped to their specific course, not their whole
+      // university (the previous version only checked universityId, which
+      // let a rep for one course act on any resource in the university).
+      return (
+        !!resolved?.courseId &&
+        resolved.courseId === scope.courseId &&
+        (!scope.departmentId || resolved.departmentId === scope.departmentId) &&
+        (!scope.universityId || resolved.universityId === scope.universityId)
+      );
 
     case 'CONTRIBUTOR':
     case 'STUDENT':
@@ -324,7 +415,7 @@ export function requireAlertSeverityPermission(
  *
  *   // Get data within user's scope
  *   const colleges = await prisma.college.findMany({
- *     where: { universityId: user.adminProfile?.universityId }
+ *     where: { universityId: user.resolvedScope?.universityId }
  *   });
  *
  *   return { user, colleges };

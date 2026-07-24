@@ -68,20 +68,20 @@ model User {
   contributorPoints Int     @default(0)
 
   // ── Registration & Receipt Records ──────────────────
-  receiptNo     String?  @unique // Student's receipt number
-  receiptRef    String?  @unique // Payment reference
-  receiptSource String?  // Where the receipt came from (MOUAU, etc.)
-  
+  receiptNo     String? @unique // Student's receipt number
+  receiptRef    String? @unique // Payment reference
+  receiptSource String? // Where the receipt came from (MOUAU, etc.)
+
   // ── Registration Audit (Security) ──────────────────
   registeredAt  DateTime @default(now())
-  registeredIP  String?  // IP address at registration
-  registeredVia String?  // "web" | "mobile" | "admin"
-  userAgent     String?  // Browser/device info
-  
+  registeredIP  String? // IP address at registration
+  registeredVia String? // "web" | "mobile" | "admin"
+  userAgent     String? // Browser/device info
+
   // ── Receipt Verification ───────────────────────────
-  receiptVerified   Boolean  @default(false)
+  receiptVerified   Boolean   @default(false)
   receiptVerifiedAt DateTime?
-  receiptVerifiedBy String?   // Admin who verified
+  receiptVerifiedBy String? // Admin who verified
 
   // ── Relations ──────────────────────────────────────
   sessions          UserSession[]
@@ -113,6 +113,9 @@ model User {
   studyGroups       StudyGroup[]         @relation("GroupCreator")
   groupMessages     GroupMessage[]
   eventAttendances  EventAttendance[]
+  deviceTokens      DeviceToken[]
+  auditLogs         AuditLog[]
+  featureFlags      FeatureFlag[]
 
   @@index([emailHash])
   @@index([phoneHash])
@@ -255,6 +258,7 @@ model University {
   campusPins       CampusPin[]
   adminProfiles    AdminProfile[]
   academicSessions AcademicSession[]
+  featureFlags     FeatureFlag[]
 
   @@index([isActive])
   @@map("university")
@@ -929,6 +933,67 @@ model UserPreference {
   updatedAt DateTime @updatedAt
 
   @@map("user_preference")
+}
+
+// ───────────────────────────────────────────────────── 
+// 17. DEVICE TOKENS (FOR PUSH NOTIFICATIONS)
+// ─────────────────────────────────────────────────────
+
+model DeviceToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  platform  String // "ios" | "android" | "web"
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("device_token")
+}
+
+// ───────────────────────────────────────────────────── 
+// 18. AUDIT LOGS
+// ─────────────────────────────────────────────────────
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String? // null for system-initiated actions
+  action     String // e.g. "user.suspend", "event.approve", or "POST /path" for the coarse per-request log
+  resource   String // a Resource from rbac/permissions.ts, or a raw path
+  resourceId String?
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+// ───────────────────────────────────────────────────── 
+// 19. FEATURE FLAGS
+// ─────────────────────────────────────────────────────
+
+model FeatureFlag {
+  id           String   @id @default(cuid())
+  key          String   @unique
+  enabled      Boolean  @default(false)
+  description  String?
+  rolloutPct   Int? // 0-100; null = no rollout gating (all-or-nothing via `enabled`)
+  universityId String? // scope to one university; null = platform-wide
+  createdById  String? // admin who created/last toggled it
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  university University? @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  createdBy  User?       @relation(fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([key])
+  @@index([universityId])
+  @@map("feature_flag")
 }
 
 // ─────────────────────────────────────────────────────

@@ -1,45 +1,30 @@
 // src/hooks.server.ts
-// Session hydration for Sabify's single-User + AdminProfile architecture
+// Composes the full request pipeline:
+//   1. healthCheckHandle — /health/*, answered directly, bypasses everything else
+//   2. sessionMiddleware  — hydrate locals.user/session from the cookie
+//   3. rateLimitMiddleware — reject over-limit clients
+//   4. auditLogMiddleware  — record mutating requests
+//
+// Health checks run first and return early so uptime monitors/load
+// balancers never get rate-limited or blocked on cookie parsing — they
+// don't need a session and shouldn't count against anyone's rate limit.
+
 import { type Handle } from '@sveltejs/kit'
-import { USER_COOKIE } from '$lib/server/auth/index'
-import { getUserByToken } from '$lib/server/auth/index'
-import type { AuthenticatedUser, AuthSession } from '$lib/server/auth/types'
+import { sequence } from '@sveltejs/kit/hooks'
+import { handle as middlewareHandle } from '$lib/middleware/index.js'
+import { handleLivenessCheck, handleReadinessCheck, handleFullHealthCheck } from '$lib/health/index.js'
 
-/**
- * Hydrate locals with user session on every request
- * Called by SvelteKit before every route handler
- */
-export const handle: Handle = async ({ event, resolve }) => {
-  // Extract session token from cookies
-  const token = event.cookies.get(USER_COOKIE)
+const healthCheckHandle: Handle = async ({ event, resolve }) => {
+  const { pathname } = event.url
 
-  if (token) {
-    try {
-      const result = await getUserByToken(token)
-      if (result) {
-        event.locals.user = result.user as AuthenticatedUser
-        event.locals.session = {
-          id: result.session.id,
-          userId: result.session.userId,
-          token: result.session.token,
-          refreshToken: result.session.refreshToken,
-          expiresAt: result.session.expiresAt,
-          ipAddress: result.session.ipAddress,
-          userAgent: result.session.userAgent,
-          createdAt: result.session.createdAt,
-          updatedAt: result.session.updatedAt,
-        } as AuthSession
-      }
-    } catch (error) {
-      console.error('[hooks.server] Session hydration error:', error)
-      // Session is invalid — clear it
-      event.cookies.delete(USER_COOKIE)
-    }
-  }
+  if (pathname === '/health/live') return handleLivenessCheck()
+  if (pathname === '/health/ready') return handleReadinessCheck()
+  if (pathname === '/health') return handleFullHealthCheck(event)
 
-  // Continue with the request
   return resolve(event)
 }
+
+export const handle: Handle = sequence(healthCheckHandle, middlewareHandle)
 
 // app.d.ts should include:
 /*

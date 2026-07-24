@@ -66,3 +66,120 @@ export function isScopedToCollege(user: AuthenticatedUser, collegeId: number): b
 export function isScopedToDepartment(user: AuthenticatedUser, departmentId: number): boolean {
   return user?.adminProfile?.departmentId === departmentId || user?.adminProfile?.departmentId === null
 }
+
+
+/**
+ * Locals context (populated by hooks.server.ts)
+ */
+export interface Locals {
+  user: User | null
+  session: AuthSession | null
+}
+ 
+/**
+ * Login request payload
+ */
+export interface LoginRequest {
+  email: string
+  password: string
+  rememberMe?: boolean
+}
+ 
+/**
+ * Login response
+ */
+export interface LoginResponse {
+  success: boolean
+  message?: string
+  error?: string
+  redirect?: string
+}
+ 
+/**
+ * Signup request payload
+ */
+export interface SignupRequest {
+  email: string
+  password: string
+  firstName: string
+  surname: string
+  university: string
+}
+ 
+/**
+ * Password reset request
+ */
+export interface PasswordResetRequest {
+  email: string
+}
+ 
+/**
+ * Password reset confirm
+ */
+export interface PasswordResetConfirm {
+  code: string
+  newPassword: string
+  confirmPassword: string
+}
+ 
+/**
+ * Email verification confirm
+ */
+export interface EmailVerificationConfirm {
+  code: string
+}
+ 
+/**
+ * OTP verification result
+ */
+export interface OtpVerificationResult {
+  valid: boolean
+  error?: string
+  userId?: string
+}
+ 
+/**
+ * Token verification result
+ */
+export interface TokenVerificationResult {
+  valid: boolean
+  error?: string
+  userId?: string
+}
+ 
+/**
+ * Password strength check result
+ */
+export interface PasswordStrengthResult {
+  strong: boolean
+  score: number // 0-5
+  feedback: string
+  errors: string[]
+}
+ 
+/**
+ * Session creation options
+ */
+export interface SessionOptions {
+  rememberMe?: boolean
+  ipAddress?: string
+  userAgent?: string
+}
+ 
+/**
+ * Admin role hierarchy
+ */
+export type AdminRole =
+  | 'OWNER'
+  | 'SUPER_ADMIN'
+  | 'LAW_ENFORCEMENT'
+  | 'UNIVERSITY_ADMIN'
+  | 'COLLEGE_ADMIN'
+  | 'DEPT_ADMIN'
+  | 'COURSE_REP'
+ 
+/**
+ * User role
+ */
+export type UserRole = 'STUDENT' | 'STAFF' | 'CONTRIBUTOR' | 'ADMIN'
+ 

@@ -1,11 +1,12 @@
 // src/lib/server/auth/verification.ts
-// Email verification tokens — OTP-based flow for single User table
+// Email verification tokens
+
 import { getPrismaClient } from '$lib/server/db/index.js'
 import { hashOtp } from '$lib/security/dataProtection'
-import { generateOtp } from './reset'
+import { generateOtp } from './reset.js'
 
 const VERIFICATION_TOKEN_TTL_MINUTES = 24 * 60 // 24 hours
-const RESEND_COOLDOWN_MINUTES = 2
+const RESEND_COOLDOWN_MINUTES = 5
 const MAX_RESENDS_PER_DAY = 5
 
 /**
@@ -16,6 +17,7 @@ export async function canResendVerification(
 ): Promise<{ allowed: boolean; reason?: string; cooldownMinutes?: number }> {
   const prisma = await getPrismaClient()
 
+  // Count verifications in the last 24 hours for this user
   const recentCount = await prisma.verification.count({
     where: {
       identifier: { startsWith: `email:${userId}:` },
@@ -60,7 +62,7 @@ export async function canResendVerification(
 export async function createVerificationToken(userId: string): Promise<string> {
   const prisma = await getPrismaClient()
   const code = generateOtp()
-  const tokenHash = hashOtp(code)
+  const tokenHash = await hashOtp(code)
   const expiresAt = new Date(Date.now() + VERIFICATION_TOKEN_TTL_MINUTES * 60 * 1000)
 
   // Delete old unconsumed verification tokens for this user
@@ -70,7 +72,7 @@ export async function createVerificationToken(userId: string): Promise<string> {
     },
   })
 
-  // Store with identifier pattern: "email:{userId}:{random}" for uniqueness
+  // Store with identifier pattern: "email:{userId}:{timestamp}" for uniqueness
   await prisma.verification.create({
     data: {
       identifier: `email:${userId}:${Date.now()}`,
@@ -79,90 +81,93 @@ export async function createVerificationToken(userId: string): Promise<string> {
     },
   })
 
-  return code // Plaintext returned only here, to be emailed
+  return code
 }
 
 /**
- * Verify an email verification code (read-only check)
- * Does NOT consume the token
+ * Verify an email verification code
+ * Returns { valid: true, userId } or { valid: false, error }
  */
-export async function verifyVerificationCode(code: string): Promise<{
-  valid: boolean
-  error?: string
-  userId?: string
-}> {
+export async function verifyVerificationCode(
+  code: string,
+): Promise<{ valid: boolean; error?: string; userId?: string }> {
   const prisma = await getPrismaClient()
-  const codeHash = hashOtp(code)
+  const codeHash = await hashOtp(code)
 
-  // Search for this verification code hash across all users
+  // Find active verification record
   const record = await prisma.verification.findFirst({
     where: {
-      value: codeHash,
       identifier: { startsWith: 'email:' },
+      value: codeHash,
+      expiresAt: { gt: new Date() }, // Not expired
     },
+    orderBy: { createdAt: 'desc' },
   })
 
   if (!record) {
-    return { valid: false, error: 'This verification link is invalid.' }
-  }
-  if (record.expiresAt < new Date()) {
-    return { valid: false, error: 'This verification link has expired. Please request a new one.' }
+    return { valid: false, error: 'Invalid or expired verification code.' }
   }
 
-  // Extract userId from identifier pattern "email:{userId}:{timestamp}"
-  const parts = record.identifier.split(':')
-  if (parts.length < 2 || parts[0] !== 'email') {
-    return { valid: false, error: 'This verification link is invalid.' }
+  // Extract userId from identifier pattern: "email:{userId}:{timestamp}"
+  const match = record.identifier.match(/^email:([^:]+):/)
+  const userId = match?.[1]
+
+  if (!userId) {
+    return { valid: false, error: 'Invalid verification record.' }
   }
 
-  const userId = parts[1]
   return { valid: true, userId }
 }
 
 /**
- * Consume a verification code and activate the user's email
- * Only call this from a POST/button click after validation
+ * Mark a verification code as consumed
+ * Returns { success: true } or { success: false, error }
  */
-export async function consumeVerificationCode(code: string): Promise<{ success: boolean; error?: string }> {
-  const check = await verifyVerificationCode(code)
-  if (!check.valid || !check.userId) {
-    return { success: false, error: check.error }
-  }
-
-  const codeHash = hashOtp(code)
+export async function consumeVerificationCode(
+  code: string,
+): Promise<{ success: boolean; error?: string }> {
   const prisma = await getPrismaClient()
-  const userId = check.userId
+  const codeHash = await hashOtp(code)
 
   try {
-    await prisma.$transaction(async (tx) => {
-      // Delete the verification token
-      await tx.verification.deleteMany({
-        where: { value: codeHash },
-      })
+    const record = await prisma.verification.findFirst({
+      where: {
+        value: codeHash,
+        expiresAt: { gt: new Date() },
+      },
+    })
 
-      // Update user: mark email as verified, flip status if PENDING
-      const user = await tx.user.findUniqueOrThrow({ where: { id: userId } })
+    if (!record) {
+      return { success: false, error: 'Verification code not found.' }
+    }
+
+    // Extract userId from identifier
+    const match = record.identifier.match(/^email:([^:]+):/)
+    const userId = match?.[1]
+
+    if (!userId) {
+      return { success: false, error: 'Invalid verification record.' }
+    }
+
+    // Update user's emailVerified flag and delete verification record
+    await prisma.$transaction(async (tx: typeof prisma) => {
+      // Mark email as verified
       await tx.user.update({
         where: { id: userId },
-        data: {
-          emailVerified: true,
-          // Only flip PENDING -> STUDENT; leave other statuses untouched
-          // (SUSPENDED should not be overridden by email verification)
-        },
+        data: { emailVerified: true },
+      })
+
+      // Delete the verification record
+      await tx.verification.delete({
+        where: { id: record.id },
       })
     })
+
     return { success: true }
   } catch (error) {
-    console.error('[consumeVerificationCode] Error:', error)
-    return { success: false, error: 'Unable to verify your email right now. Please try again.' }
+    console.error('[verification] Error consuming code:', error)
+    return { success: false, error: 'Unable to verify email. Please try again.' }
   }
-}
-
-/**
- * Get verification token expiry time in minutes (for display)
- */
-export function getVerificationTokenExpiryMinutes(): number {
-  return VERIFICATION_TOKEN_TTL_MINUTES
 }
 
 /**
@@ -171,11 +176,29 @@ export function getVerificationTokenExpiryMinutes(): number {
  */
 export async function cleanupExpiredVerifications(): Promise<number> {
   const prisma = await getPrismaClient()
+
   const result = await prisma.verification.deleteMany({
     where: {
       expiresAt: { lt: new Date() },
-      identifier: { startsWith: 'email:' },
     },
   })
+
   return result.count
+}
+
+/**
+ * Get verification token expiry time in minutes
+ */
+export function getVerificationTokenExpiryMinutes(): number {
+  return VERIFICATION_TOKEN_TTL_MINUTES
+}
+
+/**
+ * Get resend rate limit info
+ */
+export function getResendRateLimitInfo(): { cooldownMinutes: number; maxPerDay: number } {
+  return {
+    cooldownMinutes: RESEND_COOLDOWN_MINUTES,
+    maxPerDay: MAX_RESENDS_PER_DAY,
+  }
 }
